@@ -1,0 +1,37 @@
+cabal-version:      >=1.10
+name:               http-semantics
+version:            0.0.0
+license:            BSD3
+license-file:       LICENSE
+maintainer:         Kazu Yamamoto <kazu@iij.ad.jp>
+author:             Kazu Yamamoto <kazu@iij.ad.jp>
+homepage:           https://github.com/kazu-yamamoto/http-semantics
+synopsis:           HTTP senmatics libarry
+description:        Version-independent common parts of HTTP
+
+
+category:           Network
+build-type:         Simple
+
+source-repository head
+    type:     git
+    location: https://github.com/kazu-yamamoto/http-semantics
+
+library
+    exposed-modules:
+        Network.HTTP.Semantics.Token
+        Network.HTTP.Semantics.Internal
+
+    other-modules:
+        Network.HTTP.Semantics.Types
+        Network.HTTP.Semantics.Header
+
+    default-language:   Haskell2010
+    default-extensions: Strict StrictData
+    ghc-options:        -Wall
+    build-depends:
+        base >=4.9 && <5,
+        array,
+        bytestring >=0.10,
+        http-types >=0.12 && <0.13,
+        case-insensitive
