@@ -1,6 +1,7 @@
 module Network.HTTP.Semantics.Header where
 
 import Data.Array (Array)
+import Data.Array.Base (unsafeAt)
 
 import Network.HTTP.Semantics.Token
 
@@ -31,3 +32,8 @@ type TokenHeader = (Token, HeaderValue)
 
 -- | TokenBased header list.
 type TokenHeaderList = [TokenHeader]
+
+-- | Accessing 'HeaderValue' with 'Token'.
+{-# INLINE getHeaderValue #-}
+getHeaderValue :: Token -> ValueTable -> Maybe HeaderValue
+getHeaderValue t tbl = tbl `unsafeAt` tokenIx t

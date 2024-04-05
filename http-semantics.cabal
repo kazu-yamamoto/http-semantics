@@ -22,6 +22,7 @@ library
         Network.HTTP.Semantics.Client
         Network.HTTP.Semantics.Internal
         Network.HTTP.Semantics.Server
+        Network.HTTP.Semantics.Status
         Network.HTTP.Semantics.Token
 
     other-modules:
@@ -38,5 +39,6 @@ library
         case-insensitive,
         http-types >=0.12 && <0.13,
         network,
-        time-manager
+        time-manager,
+        utf8-string
 
