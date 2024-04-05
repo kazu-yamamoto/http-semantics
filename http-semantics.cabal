@@ -19,12 +19,14 @@ source-repository head
 
 library
     exposed-modules:
-        Network.HTTP.Semantics.Token
+        Network.HTTP.Semantics.Client
         Network.HTTP.Semantics.Internal
+        Network.HTTP.Semantics.Server
+        Network.HTTP.Semantics.Token
 
     other-modules:
-        Network.HTTP.Semantics.Types
         Network.HTTP.Semantics.Header
+        Network.HTTP.Semantics.Types
 
     default-language:   Haskell2010
     default-extensions: Strict StrictData
@@ -33,5 +35,8 @@ library
         base >=4.9 && <5,
         array,
         bytestring >=0.10,
+        case-insensitive,
         http-types >=0.12 && <0.13,
-        case-insensitive
+        network,
+        time-manager
+
