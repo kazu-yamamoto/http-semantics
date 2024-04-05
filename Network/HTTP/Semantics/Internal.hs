@@ -1,20 +1,7 @@
 module Network.HTTP.Semantics.Internal (
-    -- * Types
-    Scheme,
-    Authority,
-    Path,
-
-    -- * Request and response
-    InpObj (..),
-    InpBody,
-    OutObj (..),
-    OutBody (..),
-    FileSpec (..),
-    FileOffset,
-    ByteCount,
-    TrailersMaker,
-    NextTrailersMaker (..),
-    defaultTrailersMaker,
+    module Network.HTTP.Semantics.Types,
+    module Network.HTTP.Semantics.Header,
 ) where
 
+import Network.HTTP.Semantics.Header
 import Network.HTTP.Semantics.Types
