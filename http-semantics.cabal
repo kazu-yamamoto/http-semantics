@@ -24,6 +24,8 @@ library
         Network.HTTP.Semantics.Server
         Network.HTTP.Semantics.Status
         Network.HTTP.Semantics.Token
+        Network.HTTP.Semantics.File
+        Network.HTTP.Semantics.ReadN
 
     other-modules:
         Network.HTTP.Semantics.Header
@@ -39,6 +41,7 @@ library
         case-insensitive,
         http-types >=0.12 && <0.13,
         network,
+        network-byte-order,
         time-manager,
         utf8-string
 
