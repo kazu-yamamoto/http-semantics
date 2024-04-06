@@ -34,7 +34,6 @@ module Network.HTTP.Semantics.Client (
 
     -- * Aux
     Aux (..),
-    auxPossibleClientStreams,
 
     -- * Types
     Method,
@@ -42,6 +41,8 @@ module Network.HTTP.Semantics.Client (
     FileSpec (..),
     FileOffset,
     ByteCount,
+    module Network.HTTP.Semantics.ReadN,
+    module Network.HTTP.Semantics.File,
 ) where
 
 import Data.ByteString (ByteString)
@@ -49,7 +50,9 @@ import Data.ByteString.Builder (Builder)
 import Data.IORef (readIORef)
 import Network.HTTP.Types (Method, RequestHeaders, Status)
 
-import Network.HTTP.Semantics.Internal
+import Network.HTTP.Semantics
+import Network.HTTP.Semantics.File
+import Network.HTTP.Semantics.ReadN
 import Network.HTTP.Semantics.Status
 
 ----------------------------------------------------------------

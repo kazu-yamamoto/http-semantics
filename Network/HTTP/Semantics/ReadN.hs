@@ -1,10 +1,16 @@
-module Network.HTTP.Semantics.ReadN where
+module Network.HTTP.Semantics.ReadN (
+    -- * Reading n bytes
+    ReadN,
+    defaultReadN,
+)
+where
 
 import qualified Data.ByteString as B
 import Data.IORef
 import Network.Socket
 import qualified Network.Socket.ByteString as N
 
+-- | Reading n bytes.
 type ReadN = Int -> IO B.ByteString
 
 -- | Naive implementation for readN.

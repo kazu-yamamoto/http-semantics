@@ -1,6 +1,29 @@
 {-# LANGUAGE RankNTypes #-}
 
-module Network.HTTP.Semantics.Types where
+module Network.HTTP.Semantics.Types (
+    -- * Request/response as input
+    InpObj (..),
+    InpBody,
+
+    -- * Request/response as output
+    OutObj (..),
+    OutBody (..),
+
+    -- * Trailer maker
+    TrailersMaker,
+    defaultTrailersMaker,
+    NextTrailersMaker (..),
+
+    -- * File spec
+    FileOffset,
+    ByteCount,
+    FileSpec (..),
+
+    -- * Types
+    Scheme,
+    Authority,
+    Path,
+) where
 
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)

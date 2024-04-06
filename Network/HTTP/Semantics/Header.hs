@@ -1,4 +1,19 @@
-module Network.HTTP.Semantics.Header where
+module Network.HTTP.Semantics.Header (
+    -- * Headers
+    HeaderName,
+    HeaderValue,
+    Header,
+    HeaderList,
+
+    -- * Token headers
+    TokenHeader,
+    TokenHeaderList,
+
+    -- * Header table
+    HeaderTable,
+    ValueTable,
+    getHeaderValue,
+) where
 
 import Data.Array (Array)
 import Data.Array.Base (unsafeAt)

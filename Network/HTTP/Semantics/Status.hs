@@ -13,8 +13,7 @@ import Foreign.Ptr (plusPtr)
 import Foreign.Storable (poke)
 import qualified Network.HTTP.Types as H
 
-import Network.HTTP.Semantics.Internal
-import Network.HTTP.Semantics.Token
+import Network.HTTP.Semantics
 
 ----------------------------------------------------------------
 

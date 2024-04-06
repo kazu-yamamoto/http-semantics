@@ -19,9 +19,6 @@ module Network.HTTP.Semantics.Server (
 
     -- * Aux
     Aux (..),
-    auxTimeHandle,
-    auxMySockAddr,
-    auxPeerSockAddr,
 
     -- * Response
     Response (..),
@@ -44,8 +41,6 @@ module Network.HTTP.Semantics.Server (
     -- * Push promise
     PushPromise (..),
     pushPromise,
-    promiseRequestPath,
-    promiseResponse,
 
     -- * Types
     Path,
@@ -54,6 +49,8 @@ module Network.HTTP.Semantics.Server (
     FileSpec (..),
     FileOffset,
     ByteCount,
+    module Network.HTTP.Semantics.ReadN,
+    module Network.HTTP.Semantics.File,
 ) where
 
 import Data.ByteString (ByteString)
@@ -64,9 +61,10 @@ import qualified Network.HTTP.Types as H
 import Network.Socket (SockAddr)
 import qualified System.TimeManager as T
 
-import Network.HTTP.Semantics.Internal
+import Network.HTTP.Semantics
+import Network.HTTP.Semantics.File
+import Network.HTTP.Semantics.ReadN
 import Network.HTTP.Semantics.Status
-import Network.HTTP.Semantics.Token
 
 ----------------------------------------------------------------
 

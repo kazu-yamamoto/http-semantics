@@ -1,9 +1,15 @@
-module Network.HTTP.Semantics.File where
+module Network.HTTP.Semantics.File (
+    -- * Position read
+    PositionRead,
+    PositionReadMaker,
+    Sentinel (..),
+    defaultPositionReadMaker,
+) where
 
 import System.IO
 
 import Network.ByteOrder
-import Network.HTTP.Semantics.Internal
+import Network.HTTP.Semantics
 
 -- | Position read for files.
 type PositionRead = FileOffset -> ByteCount -> Buffer -> IO ByteCount

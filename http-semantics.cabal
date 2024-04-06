@@ -19,16 +19,16 @@ source-repository head
 
 library
     exposed-modules:
+        Network.HTTP.Semantics
         Network.HTTP.Semantics.Client
-        Network.HTTP.Semantics.Internal
         Network.HTTP.Semantics.Server
-        Network.HTTP.Semantics.Status
-        Network.HTTP.Semantics.Token
-        Network.HTTP.Semantics.File
-        Network.HTTP.Semantics.ReadN
 
     other-modules:
+        Network.HTTP.Semantics.File
         Network.HTTP.Semantics.Header
+        Network.HTTP.Semantics.ReadN
+        Network.HTTP.Semantics.Status
+        Network.HTTP.Semantics.Token
         Network.HTTP.Semantics.Types
 
     default-language:   Haskell2010
