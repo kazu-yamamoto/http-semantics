@@ -13,6 +13,7 @@ module Network.HTTP.Semantics.Types (
     TrailersMaker,
     defaultTrailersMaker,
     NextTrailersMaker (..),
+    runTrailersMaker,
 
     -- * File spec
     FileOffset,
@@ -25,10 +26,10 @@ module Network.HTTP.Semantics.Types (
     Path,
 ) where
 
-import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import Data.IORef
 import Data.Int (Int64)
+import Network.ByteOrder
 import qualified Network.HTTP.Types as H
 
 import Network.HTTP.Semantics.Header
@@ -136,6 +137,14 @@ defaultTrailersMaker _ = return $ NextTrailersMaker defaultTrailersMaker
 data NextTrailersMaker
     = NextTrailersMaker TrailersMaker
     | Trailers [H.Header]
+
+----------------------------------------------------------------
+
+-- | Running trailers-maker.
+--
+-- > bufferIO buf siz $ \bs -> tlrmkr (Just bs)
+runTrailersMaker :: TrailersMaker -> Buffer -> Int -> IO NextTrailersMaker
+runTrailersMaker tlrmkr buf siz = bufferIO buf siz $ \bs -> tlrmkr (Just bs)
 
 ----------------------------------------------------------------
 
