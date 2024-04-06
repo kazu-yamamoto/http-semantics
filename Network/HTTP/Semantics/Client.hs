@@ -36,6 +36,8 @@ module Network.HTTP.Semantics.Client (
     Aux (..),
 
     -- * Types
+    Scheme,
+    Authority,
     Method,
     Path,
     FileSpec (..),
