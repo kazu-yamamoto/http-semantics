@@ -5,7 +5,7 @@ module Network.HTTP.Semantics.Server (
     Server,
 
     -- * Request
-    Request,
+    Request (..),
 
     -- ** Accessing request
     requestMethod,
@@ -18,13 +18,13 @@ module Network.HTTP.Semantics.Server (
     getRequestTrailers,
 
     -- * Aux
-    Aux,
+    Aux (..),
     auxTimeHandle,
     auxMySockAddr,
     auxPeerSockAddr,
 
     -- * Response
-    Response,
+    Response (..),
 
     -- ** Creating response
     responseNoBody,
@@ -42,7 +42,7 @@ module Network.HTTP.Semantics.Server (
     setResponseTrailersMaker,
 
     -- * Push promise
-    PushPromise,
+    PushPromise (..),
     pushPromise,
     promiseRequestPath,
     promiseResponse,

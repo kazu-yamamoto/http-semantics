@@ -7,7 +7,7 @@ module Network.HTTP.Semantics.Client (
     SendRequest,
 
     -- * Request
-    Request,
+    Request (..),
 
     -- * Creating request
     requestNoBody,
@@ -23,7 +23,7 @@ module Network.HTTP.Semantics.Client (
     setRequestTrailersMaker,
 
     -- * Response
-    Response,
+    Response (..),
 
     -- ** Accessing response
     responseStatus,
@@ -33,7 +33,7 @@ module Network.HTTP.Semantics.Client (
     getResponseTrailers,
 
     -- * Aux
-    Aux,
+    Aux (..),
     auxPossibleClientStreams,
 
     -- * Types
