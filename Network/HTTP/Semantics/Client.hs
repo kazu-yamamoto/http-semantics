@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Network.HTTP.Semantics.Client (
-    -- * HTTP\/2 client
+    -- * HTTP client
     Client,
     SendRequest,
 

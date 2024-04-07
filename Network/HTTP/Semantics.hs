@@ -1,3 +1,4 @@
+-- | Library for HTTP Semantics ([RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html)), version-independent common parts.
 module Network.HTTP.Semantics (
     module Network.HTTP.Semantics.Types,
     module Network.HTTP.Semantics.Header,
