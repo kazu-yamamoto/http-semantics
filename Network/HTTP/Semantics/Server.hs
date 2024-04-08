@@ -106,30 +106,30 @@ data Aux = Aux
 
 -- | Getting the method from a request.
 requestMethod :: Request -> Maybe H.Method
-requestMethod (Request req) = getHeaderValue tokenMethod vt
+requestMethod (Request req) = getFieldValue tokenMethod vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the path from a request.
 requestPath :: Request -> Maybe Path
-requestPath (Request req) = getHeaderValue tokenPath vt
+requestPath (Request req) = getFieldValue tokenPath vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the authority from a request.
 requestAuthority :: Request -> Maybe Authority
-requestAuthority (Request req) = UTF8.toString <$> getHeaderValue tokenAuthority vt
+requestAuthority (Request req) = UTF8.toString <$> getFieldValue tokenAuthority vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the scheme from a request.
 requestScheme :: Request -> Maybe Scheme
-requestScheme (Request req) = getHeaderValue tokenScheme vt
+requestScheme (Request req) = getFieldValue tokenScheme vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the headers from a request.
-requestHeaders :: Request -> HeaderTable
+requestHeaders :: Request -> TokenHeaderTable
 requestHeaders (Request req) = inpObjHeaders req
 
 -- | Getting the body size from a request.
@@ -144,7 +144,7 @@ getRequestBodyChunk (Request req) = inpObjBody req
 -- | Reading request trailers.
 --   This function must be called after 'getRequestBodyChunk'
 --   returns an empty.
-getRequestTrailers :: Request -> IO (Maybe HeaderTable)
+getRequestTrailers :: Request -> IO (Maybe TokenHeaderTable)
 getRequestTrailers (Request req) = readIORef (inpObjTrailers req)
 
 ----------------------------------------------------------------

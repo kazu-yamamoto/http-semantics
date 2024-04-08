@@ -133,7 +133,7 @@ responseStatus :: Response -> Maybe Status
 responseStatus (Response rsp) = getStatus $ inpObjHeaders rsp
 
 -- | Getting the headers from a response.
-responseHeaders :: Response -> HeaderTable
+responseHeaders :: Response -> TokenHeaderTable
 responseHeaders (Response rsp) = inpObjHeaders rsp
 
 -- | Getting the body size from a response.
@@ -148,5 +148,5 @@ getResponseBodyChunk (Response rsp) = inpObjBody rsp
 -- | Reading response trailers.
 --   This function must be called after 'getResponseBodyChunk'
 --   returns an empty.
-getResponseTrailers :: Response -> IO (Maybe HeaderTable)
+getResponseTrailers :: Response -> IO (Maybe TokenHeaderTable)
 getResponseTrailers (Response rsp) = readIORef (inpObjTrailers rsp)

@@ -73,13 +73,13 @@ data OutBody
 
 -- | Input object
 data InpObj = InpObj
-    { inpObjHeaders :: HeaderTable
+    { inpObjHeaders :: TokenHeaderTable
     -- ^ Accessor for headers.
     , inpObjBodySize :: Maybe Int
     -- ^ Accessor for body length specified in content-length:.
     , inpObjBody :: InpBody
     -- ^ Accessor for body.
-    , inpObjTrailers :: IORef (Maybe HeaderTable)
+    , inpObjTrailers :: IORef (Maybe TokenHeaderTable)
     -- ^ Accessor for trailers.
     }
 

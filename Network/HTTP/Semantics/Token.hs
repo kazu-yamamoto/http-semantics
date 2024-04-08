@@ -101,6 +101,7 @@ import Data.ByteString.Internal (ByteString (..), memcmp)
 import Data.CaseInsensitive (CI (..), mk, original)
 import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Ptr (plusPtr)
+import Network.HTTP.Types (HeaderName)
 import System.IO.Unsafe (unsafeDupablePerformIO)
 
 -- $setup
@@ -114,7 +115,7 @@ data Token = Token
     -- ^ should be indexed in HPACK
     , isPseudo :: Bool
     -- ^ is this a pseudo header key?
-    , tokenKey :: CI ByteString
+    , tokenKey :: HeaderName
     -- ^ Case insensitive header key
     }
     deriving (Eq, Show)

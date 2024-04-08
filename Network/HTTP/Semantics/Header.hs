@@ -1,17 +1,17 @@
 module Network.HTTP.Semantics.Header (
-    -- * Headers
-    HeaderName,
-    HeaderValue,
-    Header,
-    HeaderList,
-
-    -- * Token headers
+    -- * Low-level headers.
+    FieldValue,
     TokenHeader,
     TokenHeaderList,
+    TokenHeaderTable,
 
-    -- * Header table
-    HeaderTable,
+    -- * Value table
     ValueTable,
+    getFieldValue,
+
+    -- * Deprecated
+    HeaderTable,
+    HeaderValue,
     getHeaderValue,
 ) where
 
@@ -22,33 +22,41 @@ import Network.HTTP.Semantics.Token
 
 import Data.ByteString (ByteString)
 
--- | Header name.
-type HeaderName = ByteString
+-- | Field value.
+type FieldValue = ByteString
+
+{-# DEPRECATED HeaderValue "use FieldValue instead" #-}
 
 -- | Header value.
 type HeaderValue = ByteString
 
--- | Header.
-type Header = (HeaderName, HeaderValue)
-
--- | Header list.
-type HeaderList = [Header]
-
--- | An array to get 'HeaderValue' quickly.
+-- | An array to get 'FieldValue' quickly.
 --   'getHeaderValue' should be used.
 --   Internally, the key is 'tokenIx'.
-type ValueTable = Array Int (Maybe HeaderValue)
+type ValueTable = Array Int (Maybe FieldValue)
+
+{-# DEPRECATED HeaderTable "use TokenHeaderTable instead" #-}
 
 -- | A pair of token list and value table.
 type HeaderTable = (TokenHeaderList, ValueTable)
 
+-- | A pair of token list and value table.
+type TokenHeaderTable = (TokenHeaderList, ValueTable)
+
 -- | TokenBased header.
-type TokenHeader = (Token, HeaderValue)
+type TokenHeader = (Token, FieldValue)
 
 -- | TokenBased header list.
 type TokenHeaderList = [TokenHeader]
 
--- | Accessing 'HeaderValue' with 'Token'.
+{-# DEPRECATED getHeaderValue "use geFieldValue instead" #-}
+
+-- | Accessing 'FieldValue' with 'Token'.
 {-# INLINE getHeaderValue #-}
-getHeaderValue :: Token -> ValueTable -> Maybe HeaderValue
+getHeaderValue :: Token -> ValueTable -> Maybe FieldValue
 getHeaderValue t tbl = tbl `unsafeAt` tokenIx t
+
+-- | Accessing 'FieldValue' with 'Token'.
+{-# INLINE getFieldValue #-}
+getFieldValue :: Token -> ValueTable -> Maybe FieldValue
+getFieldValue t tbl = tbl `unsafeAt` tokenIx t
