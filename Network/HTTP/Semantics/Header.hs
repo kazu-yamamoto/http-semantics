@@ -1,5 +1,6 @@
 module Network.HTTP.Semantics.Header (
     -- * Low-level headers.
+    FieldName,
     FieldValue,
     TokenHeader,
     TokenHeaderList,
@@ -21,6 +22,9 @@ import Data.Array.Base (unsafeAt)
 import Network.HTTP.Semantics.Token
 
 import Data.ByteString (ByteString)
+
+-- | Field name.
+type FieldName = ByteString
 
 -- | Field value.
 type FieldValue = ByteString

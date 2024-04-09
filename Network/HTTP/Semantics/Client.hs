@@ -7,7 +7,7 @@ module Network.HTTP.Semantics.Client (
     SendRequest,
 
     -- * Request
-    Request (..),
+    Request,
 
     -- * Creating request
     requestNoBody,
@@ -23,7 +23,7 @@ module Network.HTTP.Semantics.Client (
     setRequestTrailersMaker,
 
     -- * Response
-    Response (..),
+    Response,
 
     -- ** Accessing response
     responseStatus,
@@ -33,7 +33,8 @@ module Network.HTTP.Semantics.Client (
     getResponseTrailers,
 
     -- * Aux
-    Aux (..),
+    Aux,
+    auxPossibleClientStreams,
 
     -- * Types
     Scheme,
@@ -53,6 +54,7 @@ import Data.IORef (readIORef)
 import Network.HTTP.Types (Method, RequestHeaders, Status)
 
 import Network.HTTP.Semantics
+import Network.HTTP.Semantics.Client.Internal
 import Network.HTTP.Semantics.File
 import Network.HTTP.Semantics.ReadN
 import Network.HTTP.Semantics.Status
@@ -64,18 +66,6 @@ type SendRequest = forall r. Request -> (Response -> IO r) -> IO r
 
 -- | Client type.
 type Client a = SendRequest -> Aux -> IO a
-
--- | Request from client.
-newtype Request = Request OutObj deriving (Show)
-
--- | Response from server.
-newtype Response = Response InpObj deriving (Show)
-
--- | Additional information.
-data Aux = Aux
-    { auxPossibleClientStreams :: IO Int
-    -- ^ How many streams can be created without blocking.
-    }
 
 ----------------------------------------------------------------
 

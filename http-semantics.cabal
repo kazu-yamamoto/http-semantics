@@ -21,8 +21,10 @@ library
     exposed-modules:
         Network.HTTP.Semantics
         Network.HTTP.Semantics.Client
+        Network.HTTP.Semantics.Client.Internal
         Network.HTTP.Semantics.IO
         Network.HTTP.Semantics.Server
+        Network.HTTP.Semantics.Server.Internal
 
     other-modules:
         Network.HTTP.Semantics.File

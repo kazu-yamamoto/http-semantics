@@ -5,7 +5,7 @@ module Network.HTTP.Semantics.Server (
     Server,
 
     -- * Request
-    Request (..),
+    Request,
 
     -- ** Accessing request
     requestMethod,
@@ -18,10 +18,13 @@ module Network.HTTP.Semantics.Server (
     getRequestTrailers,
 
     -- * Aux
-    Aux (..),
+    Aux,
+    auxTimeHandle,
+    auxMySockAddr,
+    auxPeerSockAddr,
 
     -- * Response
-    Response (..),
+    Response,
 
     -- ** Creating response
     responseNoBody,
@@ -58,12 +61,11 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.UTF8 as UTF8
 import Data.IORef
 import qualified Network.HTTP.Types as H
-import Network.Socket (SockAddr)
-import qualified System.TimeManager as T
 
 import Network.HTTP.Semantics
 import Network.HTTP.Semantics.File
 import Network.HTTP.Semantics.ReadN
+import Network.HTTP.Semantics.Server.Internal
 import Network.HTTP.Semantics.Status
 
 ----------------------------------------------------------------
@@ -75,12 +77,6 @@ import Network.HTTP.Semantics.Status
 --   they can be logged.
 type Server = Request -> Aux -> (Response -> [PushPromise] -> IO ()) -> IO ()
 
--- | Request from client.
-newtype Request = Request InpObj deriving (Show)
-
--- | Response from server.
-newtype Response = Response OutObj deriving (Show)
-
 -- | HTTP/2 push promise or sever push.
 --   Pseudo REQUEST headers in push promise is automatically generated.
 --   Then, a server push is sent according to 'promiseResponse'.
@@ -90,16 +86,6 @@ data PushPromise = PushPromise
     --   E.g. \"\/style\/default.css\".
     , promiseResponse :: Response
     -- ^ Accessor for response actually pushed from a server.
-    }
-
--- | Additional information.
-data Aux = Aux
-    { auxTimeHandle :: T.Handle
-    -- ^ Time handle for the worker processing this request and response.
-    , auxMySockAddr :: SockAddr
-    -- ^ Local socket address copied from 'Config'.
-    , auxPeerSockAddr :: SockAddr
-    -- ^ Remove socket address copied from 'Config'.
     }
 
 ----------------------------------------------------------------
