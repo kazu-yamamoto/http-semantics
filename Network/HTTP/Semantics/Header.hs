@@ -23,7 +23,7 @@ import Network.HTTP.Semantics.Token
 
 import Data.ByteString (ByteString)
 
--- | Field name.
+-- | Field name. Internal usage only.
 type FieldName = ByteString
 
 -- | Field value.
