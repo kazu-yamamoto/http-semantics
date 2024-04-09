@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_HADDOCK hide #-}
 
 module Network.HTTP.Semantics.Token (
     -- * Data type

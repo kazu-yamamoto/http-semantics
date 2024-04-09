@@ -25,6 +25,7 @@ library
         Network.HTTP.Semantics.IO
         Network.HTTP.Semantics.Server
         Network.HTTP.Semantics.Server.Internal
+        Network.HTTP.Semantics.Token
 
     other-modules:
         Network.HTTP.Semantics.File
@@ -32,7 +33,6 @@ library
         Network.HTTP.Semantics.Header
         Network.HTTP.Semantics.ReadN
         Network.HTTP.Semantics.Status
-        Network.HTTP.Semantics.Token
         Network.HTTP.Semantics.Trailer
         Network.HTTP.Semantics.Types
 
