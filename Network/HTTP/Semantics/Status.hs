@@ -17,8 +17,8 @@ import Network.HTTP.Semantics
 
 ----------------------------------------------------------------
 
-getStatus :: HeaderTable -> Maybe H.Status
-getStatus (_, vt) = getHeaderValue tokenStatus vt >>= toStatus
+getStatus :: TokenHeaderTable -> Maybe H.Status
+getStatus (_, vt) = getFieldValue tokenStatus vt >>= toStatus
 
 setStatus :: H.Status -> H.ResponseHeaders -> H.ResponseHeaders
 setStatus st hdr = (":status", fromStatus st) : hdr

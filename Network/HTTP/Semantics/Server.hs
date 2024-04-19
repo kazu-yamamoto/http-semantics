@@ -5,7 +5,7 @@ module Network.HTTP.Semantics.Server (
     Server,
 
     -- * Request
-    Request (..),
+    Request,
 
     -- ** Accessing request
     requestMethod,
@@ -18,10 +18,13 @@ module Network.HTTP.Semantics.Server (
     getRequestTrailers,
 
     -- * Aux
-    Aux (..),
+    Aux,
+    auxTimeHandle,
+    auxMySockAddr,
+    auxPeerSockAddr,
 
     -- * Response
-    Response (..),
+    Response,
 
     -- ** Creating response
     responseNoBody,
@@ -58,12 +61,11 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.UTF8 as UTF8
 import Data.IORef
 import qualified Network.HTTP.Types as H
-import Network.Socket (SockAddr)
-import qualified System.TimeManager as T
 
 import Network.HTTP.Semantics
 import Network.HTTP.Semantics.File
 import Network.HTTP.Semantics.ReadN
+import Network.HTTP.Semantics.Server.Internal
 import Network.HTTP.Semantics.Status
 
 ----------------------------------------------------------------
@@ -74,12 +76,6 @@ import Network.HTTP.Semantics.Status
 --   The sending function would throw exceptions so that
 --   they can be logged.
 type Server = Request -> Aux -> (Response -> [PushPromise] -> IO ()) -> IO ()
-
--- | Request from client.
-newtype Request = Request InpObj deriving (Show)
-
--- | Response from server.
-newtype Response = Response OutObj deriving (Show)
 
 -- | HTTP/2 push promise or sever push.
 --   Pseudo REQUEST headers in push promise is automatically generated.
@@ -92,44 +88,34 @@ data PushPromise = PushPromise
     -- ^ Accessor for response actually pushed from a server.
     }
 
--- | Additional information.
-data Aux = Aux
-    { auxTimeHandle :: T.Handle
-    -- ^ Time handle for the worker processing this request and response.
-    , auxMySockAddr :: SockAddr
-    -- ^ Local socket address copied from 'Config'.
-    , auxPeerSockAddr :: SockAddr
-    -- ^ Remove socket address copied from 'Config'.
-    }
-
 ----------------------------------------------------------------
 
 -- | Getting the method from a request.
 requestMethod :: Request -> Maybe H.Method
-requestMethod (Request req) = getHeaderValue tokenMethod vt
+requestMethod (Request req) = getFieldValue tokenMethod vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the path from a request.
 requestPath :: Request -> Maybe Path
-requestPath (Request req) = getHeaderValue tokenPath vt
+requestPath (Request req) = getFieldValue tokenPath vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the authority from a request.
 requestAuthority :: Request -> Maybe Authority
-requestAuthority (Request req) = UTF8.toString <$> getHeaderValue tokenAuthority vt
+requestAuthority (Request req) = UTF8.toString <$> getFieldValue tokenAuthority vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the scheme from a request.
 requestScheme :: Request -> Maybe Scheme
-requestScheme (Request req) = getHeaderValue tokenScheme vt
+requestScheme (Request req) = getFieldValue tokenScheme vt
   where
     (_, vt) = inpObjHeaders req
 
 -- | Getting the headers from a request.
-requestHeaders :: Request -> HeaderTable
+requestHeaders :: Request -> TokenHeaderTable
 requestHeaders (Request req) = inpObjHeaders req
 
 -- | Getting the body size from a request.
@@ -144,7 +130,7 @@ getRequestBodyChunk (Request req) = inpObjBody req
 -- | Reading request trailers.
 --   This function must be called after 'getRequestBodyChunk'
 --   returns an empty.
-getRequestTrailers :: Request -> IO (Maybe HeaderTable)
+getRequestTrailers :: Request -> IO (Maybe TokenHeaderTable)
 getRequestTrailers (Request req) = readIORef (inpObjTrailers req)
 
 ----------------------------------------------------------------
