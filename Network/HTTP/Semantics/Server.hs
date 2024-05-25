@@ -15,6 +15,7 @@ module Network.HTTP.Semantics.Server (
     requestHeaders,
     requestBodySize,
     getRequestBodyChunk,
+    getRequestBodyChunk',
     getRequestTrailers,
 
     -- * Aux
@@ -125,7 +126,11 @@ requestBodySize (Request req) = inpObjBodySize req
 -- | Reading a chunk of the request body.
 --   An empty 'ByteString' returned when finished.
 getRequestBodyChunk :: Request -> IO ByteString
-getRequestBodyChunk (Request req) = inpObjBody req
+getRequestBodyChunk = fmap fst . getRequestBodyChunk'
+
+-- | Generalization of 'getRequestBodyChunk' which also returns if the 'ByteString' is the final one
+getRequestBodyChunk' :: Request -> IO (ByteString, Bool)
+getRequestBodyChunk' (Request req) = inpObjBody req
 
 -- | Reading request trailers.
 --   This function must be called after 'getRequestBodyChunk'

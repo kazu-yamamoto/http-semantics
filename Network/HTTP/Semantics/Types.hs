@@ -47,7 +47,7 @@ type Path = ByteString
 
 ----------------------------------------------------------------
 
-type InpBody = IO ByteString
+type InpBody = IO (ByteString, Bool)
 
 data OutBody
     = OutBodyNone
