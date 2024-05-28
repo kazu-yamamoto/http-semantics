@@ -30,6 +30,7 @@ module Network.HTTP.Semantics.Client (
     responseHeaders,
     responseBodySize,
     getResponseBodyChunk,
+    getResponseBodyChunk',
     getResponseTrailers,
 
     -- * Aux
@@ -133,7 +134,11 @@ responseBodySize (Response rsp) = inpObjBodySize rsp
 -- | Reading a chunk of the response body.
 --   An empty 'ByteString' returned when finished.
 getResponseBodyChunk :: Response -> IO ByteString
-getResponseBodyChunk (Response rsp) = inpObjBody rsp
+getResponseBodyChunk = fmap fst . getResponseBodyChunk'
+
+-- | Generalization of 'getResponseBodyChunk' which also returns if the 'ByteString' is the final one
+getResponseBodyChunk' :: Response -> IO (ByteString, Bool)
+getResponseBodyChunk' (Response rsp) = inpObjBody rsp
 
 -- | Reading response trailers.
 --   This function must be called after 'getResponseBodyChunk'
