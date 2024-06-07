@@ -28,7 +28,7 @@ import Network.HTTP.Semantics.Client
 ----------------------------------------------------------------
 
 -- type DynaNext = Buffer -> BufferSize -> WindowSize -> IO Next
-type DynaNext = Buffer -> BufferSize -> Int -> IO Next
+type DynaNext = Buffer -> Int -> IO Next
 
 type BytesFilled = Int
 
@@ -64,36 +64,31 @@ type CleanupStream = IO ()
 ----------------------------------------------------------------
 
 fillBuilderBodyGetNext :: Builder -> DynaNext
-fillBuilderBodyGetNext bb buf siz lim = do
-    let room = min siz lim
+fillBuilderBodyGetNext bb buf room = do
     (len, signal) <- B.runBuilder bb buf room
     return $ nextForBuilder len signal
 
 fillFileBodyGetNext
     :: PositionRead -> FileOffset -> ByteCount -> IO () -> DynaNext
-fillFileBodyGetNext pread start bytecount refresh buf siz lim = do
-    let room = min siz lim
+fillFileBodyGetNext pread start bytecount refresh buf room = do
     len <- pread start (mini room bytecount) buf
     let len' = fromIntegral len
     return $ nextForFile len' pread (start + len) (bytecount - len) refresh
 
 fillStreamBodyGetNext :: IO (Maybe StreamingChunk) -> DynaNext
-fillStreamBodyGetNext takeQ buf siz lim = do
-    let room = min siz lim
+fillStreamBodyGetNext takeQ buf room = do
     (cont, len, reqflush, leftover) <- runStreamBuilder buf room takeQ
     return $ nextForStream cont len reqflush leftover takeQ
 
 ----------------------------------------------------------------
 
 fillBufBuilderOne :: B.BufferWriter -> DynaNext
-fillBufBuilderOne writer buf0 siz0 lim = do
+fillBufBuilderOne writer buf0 room = do
     (len, signal) <- writer buf0 room
     return $ nextForBuilder len signal
-  where
-    room = min siz0 lim
 
 fillBufBuilderTwo :: ByteString -> B.BufferWriter -> DynaNext
-fillBufBuilderTwo bs writer buf0 siz0 lim
+fillBufBuilderTwo bs writer buf0 room
     | BS.length bs <= room = do
         buf1 <- copy buf0 bs
         let len1 = BS.length bs
@@ -103,8 +98,6 @@ fillBufBuilderTwo bs writer buf0 siz0 lim
         let (bs1, bs2) = BS.splitAt room bs
         void $ copy buf0 bs1
         return $ nextForBuilder room (B.Chunk bs2 writer)
-  where
-    room = min siz0 lim
 
 nextForBuilder :: BytesFilled -> B.Next -> Next
 nextForBuilder len B.Done =
@@ -145,8 +138,7 @@ runStreamBuilder buf0 room0 takeQ = loop buf0 room0 0
                 return (False, total, True, LZero)
 
 fillBufStream :: Leftover -> IO (Maybe StreamingChunk) -> DynaNext
-fillBufStream leftover0 takeQ buf0 siz0 lim0 = do
-    let room0 = min siz0 lim0
+fillBufStream leftover0 takeQ buf0 room0 = do
     case leftover0 of
         LZero -> do
             (cont, len, reqflush, leftover) <- runStreamBuilder buf0 room0 takeQ
@@ -200,8 +192,7 @@ nextForStream True len reqflush leftOrZero takeQ =
 ----------------------------------------------------------------
 
 fillBufFile :: PositionRead -> FileOffset -> ByteCount -> IO () -> DynaNext
-fillBufFile pread start bytes refresh buf siz lim = do
-    let room = min siz lim
+fillBufFile pread start bytes refresh buf room = do
     len <- pread start (mini room bytes) buf
     refresh
     let len' = fromIntegral len
