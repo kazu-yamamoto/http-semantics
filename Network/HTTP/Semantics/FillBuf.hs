@@ -48,8 +48,12 @@ data StreamingChunk
       -- This will cause the write buffer to be written to the network socket,
       -- without waiting for more data.
       StreamingFlush
-    | -- | Construct a DATA frame
-      StreamingBuilder Builder
+    | -- | Construct a DATA frame, optionally terminating the stream
+      --
+      -- The optional 'CleanupStream' argument can be used to ensure that the
+      -- final DATA frame in the stream is marked as end-of-stream, as opposed
+      -- to using a separate, /empty/, data frame with this flag set.
+      StreamingBuilder Builder (Maybe CleanupStream)
 
 -- | Action to run prior to terminating the stream
 type CleanupStream = IO ()
@@ -116,7 +120,8 @@ runStreamingChunk chunk next =
     case chunk of
         StreamingFinished dec -> finished dec
         StreamingFlush -> flush
-        StreamingBuilder builder -> runStreamingBuilder builder next
+        StreamingBuilder builder Nothing -> runStreamingBuilder builder next
+        StreamingBuilder builder (Just dec) -> runStreamingBuilder builder (finished dec)
   where
     finished :: CleanupStream -> NextWithTotal
     finished dec = \total _buf _room -> do
