@@ -76,6 +76,12 @@ data OutBodyIface = OutBodyIface
     -- ^ Unmask exceptions in the thread spawned for the request body
     , outBodyPush :: Builder -> IO ()
     -- ^ Push a new chunk
+    , outBodyPushFinal :: Builder -> IO ()
+    -- ^ Push the final chunk
+    --
+    -- Using this function instead of 'outBodyPush' can be used to guarantee that the final
+    -- HTTP2 DATA frame is marked end-of-stream; with 'outBodyPush' it may happen that
+    -- an additional empty DATA frame is used for this purpose.
     , outBodyFlush :: IO ()
     -- ^ Flush
     }
