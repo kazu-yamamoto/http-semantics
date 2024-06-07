@@ -16,6 +16,10 @@ module Network.HTTP.Semantics.Client (
     requestStreamingUnmask,
     requestBuilder,
 
+    -- ** Generalized streaming interface
+    OutBodyIface(..),
+    requestStreamingIface,
+
     -- ** Trailers maker
     TrailersMaker,
     NextTrailersMaker (..),
@@ -106,7 +110,17 @@ requestStreamingUnmask
     -> RequestHeaders
     -> ((forall x. IO x -> IO x) -> (Builder -> IO ()) -> IO () -> IO ())
     -> Request
-requestStreamingUnmask m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingUnmask strmbdy) defaultTrailersMaker
+requestStreamingUnmask m p hdr strmbdy = requestStreamingIface m p hdr $ \iface ->
+    strmbdy (outBodyUnmask iface) (outBodyPush iface) (outBodyFlush iface)
+
+-- | Generalized version of 'requestStreaming',
+requestStreamingIface
+    :: Method
+    -> Path
+    -> RequestHeaders
+    -> (OutBodyIface -> IO ())
+    -> Request
+requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingUnmask strmbdy) defaultTrailersMaker
   where
     hdr' = addHeaders m p hdr
 
