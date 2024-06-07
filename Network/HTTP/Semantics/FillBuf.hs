@@ -85,34 +85,34 @@ fillStreamBodyGetNext takeQ buf siz lim = do
 
 ----------------------------------------------------------------
 
-fillBufBuilder :: Leftover -> DynaNext
-fillBufBuilder leftover buf0 siz0 lim = do
-    let room = min siz0 lim
-    case leftover of
-        LZero -> error "fillBufBuilder: LZero"
-        LOne writer -> do
-            (len, signal) <- writer buf0 room
-            getNext len signal
-        LTwo bs writer
-            | BS.length bs <= room -> do
-                buf1 <- copy buf0 bs
-                let len1 = BS.length bs
-                (len2, signal) <- writer buf1 (room - len1)
-                getNext (len1 + len2) signal
-            | otherwise -> do
-                let (bs1, bs2) = BS.splitAt room bs
-                void $ copy buf0 bs1
-                getNext room (B.Chunk bs2 writer)
+fillBufBuilderOne :: B.BufferWriter -> DynaNext
+fillBufBuilderOne writer buf0 siz0 lim = do
+    (len, signal) <- writer buf0 room
+    return $ nextForBuilder len signal
   where
-    getNext l s = return $ nextForBuilder l s
+    room = min siz0 lim
+
+fillBufBuilderTwo :: ByteString -> B.BufferWriter -> DynaNext
+fillBufBuilderTwo bs writer buf0 siz0 lim
+    | BS.length bs <= room = do
+        buf1 <- copy buf0 bs
+        let len1 = BS.length bs
+        (len2, signal) <- writer buf1 (room - len1)
+        return $ nextForBuilder (len1 + len2) signal
+    | otherwise = do
+        let (bs1, bs2) = BS.splitAt room bs
+        void $ copy buf0 bs1
+        return $ nextForBuilder room (B.Chunk bs2 writer)
+  where
+    room = min siz0 lim
 
 nextForBuilder :: BytesFilled -> B.Next -> Next
 nextForBuilder len B.Done =
     Next len True Nothing -- let's flush
 nextForBuilder len (B.More _ writer) =
-    Next len False $ Just (fillBufBuilder (LOne writer))
+    Next len False $ Just (fillBufBuilderOne writer)
 nextForBuilder len (B.Chunk bs writer) =
-    Next len False $ Just (fillBufBuilder (LTwo bs writer))
+    Next len False $ Just (fillBufBuilderTwo bs writer)
 
 ----------------------------------------------------------------
 
