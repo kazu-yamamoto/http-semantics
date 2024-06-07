@@ -9,6 +9,7 @@ module Network.HTTP.Semantics.FillBuf (
     DynaNext,
     BytesFilled,
     StreamingChunk (..),
+    CleanupStream,
     fillBuilderBodyGetNext,
     fillFileBodyGetNext,
     fillStreamBodyGetNext,
@@ -47,9 +48,18 @@ data Leftover
 ----------------------------------------------------------------
 
 data StreamingChunk
-    = StreamingFinished (IO ())
-    | StreamingFlush
-    | StreamingBuilder Builder
+    = -- | Indicate that the stream is finished
+      StreamingFinished CleanupStream
+    | -- | Flush the stream
+      --
+      -- This will cause the write buffer to be written to the network socket,
+      -- without waiting for more data.
+      StreamingFlush
+    | -- | Construct a DATA frame
+      StreamingBuilder Builder
+
+-- | Action to run prior to terminating the stream
+type CleanupStream = IO ()
 
 ----------------------------------------------------------------
 
