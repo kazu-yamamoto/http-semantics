@@ -8,6 +8,7 @@ module Network.HTTP.Semantics.Types (
     -- * Request/response as output
     OutObj (..),
     OutBody (..),
+    OutBodyIface (..),
 
     -- * Trailers maker
     TrailersMaker,
@@ -66,10 +67,18 @@ data OutBody
       --
       -- TODO: The analogous change for the server-side would be to provide a similar
       -- @unmask@ callback as the first argument in the 'Server' type alias.
-      OutBodyStreamingUnmask
-        ((forall x. IO x -> IO x) -> (Builder -> IO ()) -> IO () -> IO ())
+      OutBodyStreamingUnmask (OutBodyIface -> IO ())
     | OutBodyBuilder Builder
     | OutBodyFile FileSpec
+
+data OutBodyIface = OutBodyIface
+    { outBodyUnmask :: (forall x. IO x -> IO x)
+    -- ^ Unmask exceptions in the thread spawned for the request body
+    , outBodyPush :: Builder -> IO ()
+    -- ^ Push a new chunk
+    , outBodyFlush :: IO ()
+    -- ^ Flush
+    }
 
 -- | Input object
 data InpObj = InpObj
