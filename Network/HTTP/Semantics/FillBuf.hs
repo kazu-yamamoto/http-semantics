@@ -144,15 +144,20 @@ runStreamingBuilder builder next = \total buf room -> do
         case signal of
             B.Done ->
                 next total' (buf `plusPtr` len) (room - len)
-            B.More _ writer ->
-                return $ Next total' False (Just $ goMore writer 0)
+            B.More minReq writer ->
+                return $ Next total' False (Just $ goMore (Just minReq) writer 0)
             B.Chunk bs writer ->
                 return $ Next total' False (Just $ goChunk bs writer 0)
 
-    goMore :: B.BufferWriter -> NextWithTotal
-    goMore writer = \total buf room -> do
-        writeResult <- writer buf room
-        ranWriter writeResult total buf room
+    goMore :: Maybe Int -> B.BufferWriter -> NextWithTotal
+    goMore mMinReq writer = \total buf room -> do
+        let enoughRoom = maybe True (room >=) mMinReq
+        if enoughRoom
+            then do
+              writeResult <- writer buf room
+              ranWriter writeResult total buf room
+            else do
+              return $ Next total True (Just $ goMore mMinReq writer 0)
 
     goChunk :: ByteString -> B.BufferWriter -> NextWithTotal
     goChunk bs writer = \total buf room ->
@@ -160,7 +165,7 @@ runStreamingBuilder builder next = \total buf room -> do
             then do
                 buf' <- copy buf bs
                 let len = BS.length bs
-                goMore writer (total + len) buf' (room - len)
+                goMore Nothing writer (total + len) buf' (room - len)
             else do
                 let (bs1, bs2) = BS.splitAt room bs
                 void $ copy buf bs1
