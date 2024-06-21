@@ -1,3 +1,8 @@
+## 0.1.2
+
+* Avoid buffer overflow in fillBufBuilderOne
+  [#3](https://github.com/kazu-yamamoto/http-semantics/pull/4)
+
 ## 0.1.1
 
 * Avoid buffer overflow in runStreamingBuilder
