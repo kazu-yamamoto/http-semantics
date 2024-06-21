@@ -146,11 +146,20 @@ responseBodySize :: Response -> Maybe Int
 responseBodySize (Response rsp) = inpObjBodySize rsp
 
 -- | Reading a chunk of the response body.
---   An empty 'ByteString' returned when finished.
+--   An empty 'ByteString' returned when finished, at which point you must call
+--   'getResponseTrailers'.
+--
+--   Note that you /must/ consume the entire response body to ensure proper
+--   control flow in the connection.
 getResponseBodyChunk :: Response -> IO ByteString
 getResponseBodyChunk = fmap fst . getResponseBodyChunk'
 
--- | Generalization of 'getResponseBodyChunk' which also returns if the 'ByteString' is the final one
+-- | Generalization of 'getResponseBodyChunk' which also returns if the
+--   'ByteString' is the final one. If it is the final one, you must call
+--   'getResponseTrailers'.
+--
+--   Note that you /must/ consume the entire response body to ensure proper
+--   control flow in the connection.
 getResponseBodyChunk' :: Response -> IO (ByteString, Bool)
 getResponseBodyChunk' (Response rsp) = inpObjBody rsp
 
