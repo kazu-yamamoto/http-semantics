@@ -84,10 +84,14 @@ fillStreamBodyGetNext takeQ = loop 0
 
 ----------------------------------------------------------------
 
-fillBufBuilderOne :: B.BufferWriter -> DynaNext
-fillBufBuilderOne writer buf0 room = do
-    (len, signal) <- writer buf0 room
-    return $ nextForBuilder len signal
+fillBufBuilderOne :: Int -> B.BufferWriter -> DynaNext
+fillBufBuilderOne minReq writer buf0 room = do
+    if room >= minReq
+        then do
+          (len, signal) <- writer buf0 room
+          return $ nextForBuilder len signal
+        else do
+          return $ Next 0 True (Just $ fillBufBuilderOne minReq writer)
 
 fillBufBuilderTwo :: ByteString -> B.BufferWriter -> DynaNext
 fillBufBuilderTwo bs writer buf0 room
@@ -104,8 +108,8 @@ fillBufBuilderTwo bs writer buf0 room
 nextForBuilder :: BytesFilled -> B.Next -> Next
 nextForBuilder len B.Done =
     Next len True Nothing -- let's flush
-nextForBuilder len (B.More _ writer) =
-    Next len False $ Just (fillBufBuilderOne writer)
+nextForBuilder len (B.More minReq writer) =
+    Next len False $ Just (fillBufBuilderOne minReq writer)
 nextForBuilder len (B.Chunk bs writer) =
     Next len False $ Just (fillBufBuilderTwo bs writer)
 
