@@ -10,6 +10,7 @@ synopsis:        HTTP senmatics libarry
 description:     Version-independent common parts of HTTP
 category:        Network
 build-type:      Simple
+extra-doc-files: ChangeLog.md
 
 source-repository head
     type:     git
