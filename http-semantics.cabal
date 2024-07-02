@@ -1,17 +1,15 @@
-cabal-version:      >=1.10
-name:               http-semantics
-version:            0.1.2
-license:            BSD3
-license-file:       LICENSE
-maintainer:         Kazu Yamamoto <kazu@iij.ad.jp>
-author:             Kazu Yamamoto <kazu@iij.ad.jp>
-homepage:           https://github.com/kazu-yamamoto/http-semantics
-synopsis:           HTTP senmatics libarry
-description:        Version-independent common parts of HTTP
-
-
-category:           Network
-build-type:         Simple
+cabal-version:   >=1.10
+name:            http-semantics
+version:         0.1.2
+license:         BSD3
+license-file:    LICENSE
+maintainer:      Kazu Yamamoto <kazu@iij.ad.jp>
+author:          Kazu Yamamoto <kazu@iij.ad.jp>
+homepage:        https://github.com/kazu-yamamoto/http-semantics
+synopsis:        HTTP senmatics libarry
+description:     Version-independent common parts of HTTP
+category:        Network
+build-type:      Simple
 
 source-repository head
     type:     git
@@ -49,4 +47,3 @@ library
         network-byte-order,
         time-manager,
         utf8-string
-
