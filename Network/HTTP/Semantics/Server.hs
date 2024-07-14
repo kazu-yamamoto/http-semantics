@@ -33,6 +33,10 @@ module Network.HTTP.Semantics.Server (
     responseStreaming,
     responseBuilder,
 
+    -- ** Generalized streaming interface
+    OutBodyIface(..),
+    responseStreamingIface,
+
     -- ** Accessing response
     responseBodySize,
 
@@ -165,6 +169,16 @@ responseStreaming
     -> ((Builder -> IO ()) -> IO () -> IO ())
     -> Response
 responseStreaming st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker
+  where
+    hdr' = setStatus st hdr
+
+-- | Generalization of 'responseStreaming'.
+responseStreamingIface
+    :: H.Status
+    -> H.ResponseHeaders
+    -> (OutBodyIface -> IO ())
+    -> Response
+responseStreamingIface st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker
   where
     hdr' = setStatus st hdr
 

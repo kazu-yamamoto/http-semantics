@@ -120,7 +120,7 @@ requestStreamingIface
     -> RequestHeaders
     -> (OutBodyIface -> IO ())
     -> Request
-requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingUnmask strmbdy) defaultTrailersMaker
+requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker
   where
     hdr' = addHeaders m p hdr
 

@@ -54,26 +54,23 @@ data OutBody
     = OutBodyNone
     | -- | Streaming body takes a write action and a flush action.
       OutBodyStreaming ((Builder -> IO ()) -> IO () -> IO ())
-    | -- | Like 'OutBodyStreaming', but with a callback to unmask expections
-      --
-      -- This is used in the client: we spawn the new thread for the request body
-      -- with exceptions masked, and provide the body of 'OutBodyStreamingUnmask'
-      -- with a callback to unmask them again (typically after installing an exception
-      -- handler).
-      --
-      -- We do /NOT/ support this in the server, as here the scope of the thread
-      -- that is spawned for the server is the entire handler, not just the response
-      -- streaming body.
-      --
-      -- TODO: The analogous change for the server-side would be to provide a similar
-      -- @unmask@ callback as the first argument in the 'Server' type alias.
-      OutBodyStreamingUnmask (OutBodyIface -> IO ())
+    | -- | Generalization of 'OutBodyStreaming'.
+      OutBodyStreamingIface (OutBodyIface -> IO ())
     | OutBodyBuilder Builder
     | OutBodyFile FileSpec
 
 data OutBodyIface = OutBodyIface
     { outBodyUnmask :: (forall x. IO x -> IO x)
     -- ^ Unmask exceptions in the thread spawned for the request body
+    --
+    -- This is used in the client: we spawn the new thread for the request body
+    -- with exceptions masked, and provide the body of 'OutBodyStreamingIface'
+    -- with a callback to unmask them again (typically after installing an
+    -- exception handler).
+    --
+    -- Unmasking in the server is a no-op, as here the scope of the thread that
+    -- is spawned for the server is the entire handler, not just the response
+    -- streaming body.
     , outBodyPush :: Builder -> IO ()
     -- ^ Push a new chunk
     , outBodyPushFinal :: Builder -> IO ()

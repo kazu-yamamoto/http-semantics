@@ -9,6 +9,7 @@ module Network.HTTP.Semantics.FillBuf (
     DynaNext,
     BytesFilled,
     StreamingChunk (..),
+    IsEndOfStream (..),
     CleanupStream,
     fillBuilderBodyGetNext,
     fillFileBodyGetNext,
@@ -21,6 +22,7 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.Builder.Extra as B
 import Data.ByteString.Internal
 import Data.Int (Int64)
+import Data.Maybe
 import Foreign.Ptr (plusPtr)
 import Network.ByteOrder
 import Network.HTTP.Semantics.Client
@@ -42,21 +44,27 @@ data Next
 
 data StreamingChunk
     = -- | Indicate that the stream is finished
-      StreamingFinished CleanupStream
+      StreamingFinished (Maybe CleanupStream)
     | -- | Flush the stream
       --
       -- This will cause the write buffer to be written to the network socket,
       -- without waiting for more data.
       StreamingFlush
     | -- | Construct a DATA frame, optionally terminating the stream
-      --
-      -- The optional 'CleanupStream' argument can be used to ensure that the
-      -- final DATA frame in the stream is marked as end-of-stream, as opposed
-      -- to using a separate, /empty/, data frame with this flag set.
-      StreamingBuilder Builder (Maybe CleanupStream)
+      StreamingBuilder Builder IsEndOfStream
 
 -- | Action to run prior to terminating the stream
 type CleanupStream = IO ()
+
+data IsEndOfStream =
+    -- | The stream is not yet terminated
+    NotEndOfStream
+
+    -- | The stream is terminated
+    --
+    -- In addition to indicating that the stream is terminated, we can also
+    -- specify an optional `Cleanup` handler to be run.
+  | EndOfStream (Maybe CleanupStream)
 
 ----------------------------------------------------------------
 
@@ -122,14 +130,14 @@ type NextWithTotal = Int -> DynaNext
 runStreamingChunk :: StreamingChunk -> NextWithTotal -> NextWithTotal
 runStreamingChunk chunk next =
     case chunk of
-        StreamingFinished dec -> finished dec
+        StreamingFinished mdec -> finished mdec
         StreamingFlush -> flush
-        StreamingBuilder builder Nothing -> runStreamingBuilder builder next
-        StreamingBuilder builder (Just dec) -> runStreamingBuilder builder (finished dec)
+        StreamingBuilder builder NotEndOfStream -> runStreamingBuilder builder next
+        StreamingBuilder builder (EndOfStream mdec) -> runStreamingBuilder builder (finished mdec)
   where
-    finished :: CleanupStream -> NextWithTotal
-    finished dec = \total _buf _room -> do
-        dec
+    finished :: Maybe CleanupStream -> NextWithTotal
+    finished mdec = \total _buf _room -> do
+        fromMaybe (return ()) mdec
         return $ Next total True Nothing
 
     flush :: NextWithTotal
