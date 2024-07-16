@@ -1,7 +1,14 @@
+# ChangeLog for http-semantics
+
+## 0.2.0
+
+* Introduce `responseStreamingIface`
+  [#9](https://github.com/kazu-yamamoto/http-semantics/pull/9)
+
 ## 0.1.2
 
 * Avoid buffer overflow in fillBufBuilderOne
-  [#3](https://github.com/kazu-yamamoto/http-semantics/pull/4)
+  [#4](https://github.com/kazu-yamamoto/http-semantics/pull/4)
 
 ## 0.1.1
 
