@@ -14,6 +14,10 @@ import qualified Network.Socket.ByteString as N
 type ReadN = Int -> IO B.ByteString
 
 -- | Naive implementation for readN.
+--
+-- /NOTE/: This function is intended to be used by a single thread only.
+-- (It is probably quite rare anyway to want concurrent reads from the /same/
+-- network socket.)
 defaultReadN :: Socket -> IORef (Maybe B.ByteString) -> ReadN
 defaultReadN _ _ 0 = return B.empty
 defaultReadN s ref n = do
