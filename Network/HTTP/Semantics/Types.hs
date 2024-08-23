@@ -26,6 +26,7 @@ module Network.HTTP.Semantics.Types (
     Path,
 ) where
 
+import Control.Exception (SomeException)
 import Data.ByteString.Builder (Builder)
 import Data.IORef
 import Data.Int (Int64)
@@ -76,9 +77,23 @@ data OutBodyIface = OutBodyIface
     , outBodyPushFinal :: Builder -> IO ()
     -- ^ Push the final chunk
     --
-    -- Using this function instead of 'outBodyPush' can be used to guarantee that the final
-    -- HTTP2 DATA frame is marked end-of-stream; with 'outBodyPush' it may happen that
-    -- an additional empty DATA frame is used for this purpose.
+    -- Using this function instead of 'outBodyPush' can be used to guarantee
+    -- that the final HTTP2 DATA frame is marked end-of-stream; with
+    -- 'outBodyPush' it may happen that an additional empty DATA frame is used
+    -- for this purpose.
+    --
+    -- /Postcondition/: After calling 'outBodyPushFinal', 'outBodyCancel' will
+    -- be a no-op.
+    , outBodyCancel :: Maybe SomeException -> IO ()
+    -- ^ Cancel the stream
+    --
+    -- Sends a @RST_STREAM@ to the peer. If cancelling as the result of an
+    -- exception, a 'Just' should be provided which specifies the exception
+    -- which will be stored locally as the reason for cancelling the stream; In
+    -- this case, the error code sent with the @RST_STREAM@ will be
+    -- @INTERNAL_ERROR@ (see
+    -- <https://datatracker.ietf.org/doc/html/rfc7540#section-7>). If 'Nothing'
+    -- is given, the error code will be @CANCEL@.
     , outBodyFlush :: IO ()
     -- ^ Flush
     }
