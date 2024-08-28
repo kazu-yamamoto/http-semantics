@@ -80,6 +80,8 @@ import Network.HTTP.Semantics.Status
 --   should give them to the sending function.
 --   The sending function would throw exceptions so that
 --   they can be logged.
+--
+--   The sending function must only be called once.
 type Server = Request -> Aux -> (Response -> [PushPromise] -> IO ()) -> IO ()
 
 -- | HTTP/2 push promise or sever push.
