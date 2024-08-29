@@ -74,28 +74,43 @@ data OutBodyIface = OutBodyIface
     -- streaming body.
     , outBodyPush :: Builder -> IO ()
     -- ^ Push a new chunk
+    --
+    -- In @http2@, there is no direct correspondence between chunks and the
+    -- resulting @DATA@ frames sent: the chunks are collected (written to an
+    -- internal write buffer) until we can fill a frame.
+    --
+    -- See also 'outBodyFlush'.
     , outBodyPushFinal :: Builder -> IO ()
     -- ^ Push the final chunk
     --
     -- Using this function instead of 'outBodyPush' can be used to guarantee
     -- that the final HTTP2 DATA frame is marked end-of-stream; with
     -- 'outBodyPush' it may happen that an additional empty DATA frame is used
-    -- for this purpose.
-    --
-    -- /Postcondition/: After calling 'outBodyPushFinal', 'outBodyCancel' will
-    -- be a no-op.
+    -- for this purpose. Additionally, after calling this function,
+    -- 'outBodyCancel' will be a no-op.
     , outBodyCancel :: Maybe SomeException -> IO ()
     -- ^ Cancel the stream
     --
     -- Sends a @RST_STREAM@ to the peer. If cancelling as the result of an
     -- exception, a 'Just' should be provided which specifies the exception
-    -- which will be stored locally as the reason for cancelling the stream; In
+    -- which will be stored locally as the reason for cancelling the stream; in
     -- this case, the error code sent with the @RST_STREAM@ will be
     -- @INTERNAL_ERROR@ (see
     -- <https://datatracker.ietf.org/doc/html/rfc7540#section-7>). If 'Nothing'
     -- is given, the error code will be @CANCEL@.
+    --
+    -- If there is a partially constructed @DATA@ frame at the time of
+    -- cancellation, this frame is discarded. If this is undesirable, you should
+    -- call 'outBodyFlush' prior to cancelling.
     , outBodyFlush :: IO ()
     -- ^ Flush
+    --
+    -- This can be used to emit a DATA frame with the data collected so far
+    -- (using 'outBodyPush'), even if that DATA frame has not yet reached the
+    -- maximum frame size. Calling 'outBodyFlush' unnecessarily can therefore
+    -- result in excessive overhead from frame headers.
+    --
+    -- If no data is available to send, this is a no-op.
     }
 
 -- | Input object
