@@ -1,5 +1,13 @@
 # ChangeLog for http-semantics
 
+## 0.2.1
+
+* Add outBodyCancel to OutBodyIface
+  [#11](https://github.com/kazu-yamamoto/http-semantics/pull/11)
+* Documentation improvement.
+  [#10](https://github.com/kazu-yamamoto/http-semantics/pull/10)
+  [#11](https://github.com/kazu-yamamoto/http-semantics/pull/11)
+
 ## 0.2.0
 
 * Introduce `responseStreamingIface`
