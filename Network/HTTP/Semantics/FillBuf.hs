@@ -16,6 +16,7 @@ module Network.HTTP.Semantics.FillBuf (
     fillStreamBodyGetNext,
 ) where
 
+import Control.Exception (SomeException)
 import Control.Monad
 import qualified Data.ByteString as BS
 import Data.ByteString.Builder (Builder)
@@ -29,8 +30,24 @@ import Network.HTTP.Semantics.Client
 
 ----------------------------------------------------------------
 
--- type DynaNext = Buffer -> BufferSize -> WindowSize -> IO Next
-type DynaNext = Buffer -> Int -> IO Next
+-- | Write part of a streaming response to the write buffer
+--
+-- In @http2@ this will be used to construct a single HTTP2 @DATA@ frame
+-- (see discussion of the maximum number of bytes, below).
+type DynaNext =
+       Buffer
+    -- ^ Write buffer
+    -> Int
+    -- ^ Maximum number of bytes we are allowed to write
+    --
+    -- In @http2@, this maximum will be set to the space left in the write
+    -- buffer. Implicitly this also means that this maximum cannot exceed the
+    -- maximum size of a HTTP2 frame, since in @http2@ the size of the write
+    -- buffer is also used to set @SETTINGS_MAX_FRAME_SIZE@ (see
+    -- @confBufferSize@).
+    -> IO Next
+    -- ^ Information on the data written, and on how to continue if not all data
+    -- was written
 
 type BytesFilled = Int
 
@@ -39,12 +56,15 @@ data Next
         BytesFilled -- payload length
         Bool -- require flushing
         (Maybe DynaNext)
+    | CancelNext (Maybe SomeException)
 
 ----------------------------------------------------------------
 
 data StreamingChunk
     = -- | Indicate that the stream is finished
       StreamingFinished (Maybe CleanupStream)
+    | -- | Indicate that the stream is cancelled
+      StreamingCancelled (Maybe SomeException)
     | -- | Flush the stream
       --
       -- This will cause the write buffer to be written to the network socket,
@@ -124,6 +144,10 @@ nextForBuilder len (B.Chunk bs writer) =
 ----------------------------------------------------------------
 
 -- | Like 'DynaNext', but with additional argument indicating total bytes written
+--
+-- Since @http2@ uses @DynaNext@ to construct a /single/ @DATA@ frame, the
+-- \"total number of bytes written\" refers to the current size of the payload
+-- of that @DATA@ frame.
 type NextWithTotal = Int -> DynaNext
 
 -- | Run the chunk, then continue as specified, unless streaming is finished
@@ -131,6 +155,7 @@ runStreamingChunk :: StreamingChunk -> NextWithTotal -> NextWithTotal
 runStreamingChunk chunk next =
     case chunk of
         StreamingFinished mdec -> finished mdec
+        StreamingCancelled mErr -> cancel mErr
         StreamingFlush -> flush
         StreamingBuilder builder NotEndOfStream -> runStreamingBuilder builder next
         StreamingBuilder builder (EndOfStream mdec) -> runStreamingBuilder builder (finished mdec)
@@ -143,6 +168,17 @@ runStreamingChunk chunk next =
     flush :: NextWithTotal
     flush = \total _buf _room -> do
         return $ Next total True (Just $ next 0)
+
+    -- Cancel streaming
+    --
+    -- The @_total@ number of bytes written refers to the @DATA@ frame currently
+    -- under construction, but not yet sent (see discussion at 'DynaNext' and
+    -- 'NextWithTotal'). Moreover, the documentation of 'outBodyCancel'
+    -- explicitly states that such a partially constructed frame, if one exists,
+    -- will be discarded on cancellation. We can therefore simply ignore
+    -- @_total@ here.
+    cancel :: Maybe SomeException -> NextWithTotal
+    cancel mErr = \_total _buf _room -> pure $ CancelNext mErr
 
 -- | Run 'Builder' until completion, then continue as specified
 runStreamingBuilder :: Builder -> NextWithTotal -> NextWithTotal
