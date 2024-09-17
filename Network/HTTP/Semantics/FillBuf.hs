@@ -35,7 +35,7 @@ import Network.HTTP.Semantics.Client
 -- In @http2@ this will be used to construct a single HTTP2 @DATA@ frame
 -- (see discussion of the maximum number of bytes, below).
 type DynaNext =
-       Buffer
+    Buffer
     -- ^ Write buffer
     -> Int
     -- ^ Maximum number of bytes we are allowed to write
@@ -76,15 +76,14 @@ data StreamingChunk
 -- | Action to run prior to terminating the stream
 type CleanupStream = IO ()
 
-data IsEndOfStream =
-    -- | The stream is not yet terminated
-    NotEndOfStream
-
-    -- | The stream is terminated
-    --
-    -- In addition to indicating that the stream is terminated, we can also
-    -- specify an optional `Cleanup` handler to be run.
-  | EndOfStream (Maybe CleanupStream)
+data IsEndOfStream
+    = -- | The stream is not yet terminated
+      NotEndOfStream
+    | -- | The stream is terminated
+      --
+      -- In addition to indicating that the stream is terminated, we can also
+      -- specify an optional `Cleanup` handler to be run.
+      EndOfStream (Maybe CleanupStream)
 
 ----------------------------------------------------------------
 
@@ -116,10 +115,10 @@ fillBufBuilderOne :: Int -> B.BufferWriter -> DynaNext
 fillBufBuilderOne minReq writer buf0 room = do
     if room >= minReq
         then do
-          (len, signal) <- writer buf0 room
-          return $ nextForBuilder len signal
+            (len, signal) <- writer buf0 room
+            return $ nextForBuilder len signal
         else do
-          return $ Next 0 True (Just $ fillBufBuilderOne minReq writer)
+            return $ Next 0 True (Just $ fillBufBuilderOne minReq writer)
 
 fillBufBuilderTwo :: ByteString -> B.BufferWriter -> DynaNext
 fillBufBuilderTwo bs writer buf0 room
@@ -202,10 +201,10 @@ runStreamingBuilder builder next = \total buf room -> do
         let enoughRoom = maybe True (room >=) mMinReq
         if enoughRoom
             then do
-              writeResult <- writer buf room
-              ranWriter writeResult total buf room
+                writeResult <- writer buf room
+                ranWriter writeResult total buf room
             else do
-              return $ Next total True (Just $ goMore mMinReq writer 0)
+                return $ Next total True (Just $ goMore mMinReq writer 0)
 
     goChunk :: ByteString -> B.BufferWriter -> NextWithTotal
     goChunk bs writer = \total buf room ->

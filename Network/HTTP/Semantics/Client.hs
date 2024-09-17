@@ -17,7 +17,7 @@ module Network.HTTP.Semantics.Client (
     requestBuilder,
 
     -- ** Generalized streaming interface
-    OutBodyIface(..),
+    OutBodyIface (..),
     requestStreamingIface,
 
     -- ** Trailers maker
