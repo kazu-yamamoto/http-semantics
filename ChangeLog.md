@@ -1,5 +1,10 @@
 # ChangeLog for http-semantics
 
+## 0.3.0
+
+* Breaking change: fillFileBodyGetNext takes Sentinel instead of
+  IO () to close files on time.
+
 ## 0.2.1
 
 * Add outBodyCancel to OutBodyIface

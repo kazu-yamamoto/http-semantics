@@ -93,11 +93,11 @@ fillBuilderBodyGetNext bb buf room = do
     return $ nextForBuilder len signal
 
 fillFileBodyGetNext
-    :: PositionRead -> FileOffset -> ByteCount -> IO () -> DynaNext
-fillFileBodyGetNext pread start bytecount refresh buf room = do
+    :: PositionRead -> FileOffset -> ByteCount -> Sentinel -> DynaNext
+fillFileBodyGetNext pread start bytecount sentinel buf room = do
     len <- pread start (mini room bytecount) buf
     let len' = fromIntegral len
-    return $ nextForFile len' pread (start + len) (bytecount - len) refresh
+    nextForFile len' pread (start + len) (bytecount - len) sentinel
 
 fillStreamBodyGetNext :: IO (Maybe StreamingChunk) -> DynaNext
 fillStreamBodyGetNext takeQ = loop 0
@@ -220,19 +220,25 @@ runStreamingBuilder builder next = \total buf room -> do
 
 ----------------------------------------------------------------
 
-fillBufFile :: PositionRead -> FileOffset -> ByteCount -> IO () -> DynaNext
-fillBufFile pread start bytes refresh buf room = do
+fillBufFile :: PositionRead -> FileOffset -> ByteCount -> Sentinel -> DynaNext
+fillBufFile pread start bytes sentinel buf room = do
     len <- pread start (mini room bytes) buf
-    refresh
+    case sentinel of
+        Refresher refresh -> refresh
+        _ -> return ()
     let len' = fromIntegral len
-    return $ nextForFile len' pread (start + len) (bytes - len) refresh
+    nextForFile len' pread (start + len) (bytes - len) sentinel
 
 nextForFile
-    :: BytesFilled -> PositionRead -> FileOffset -> ByteCount -> IO () -> Next
-nextForFile 0 _ _ _ _ = Next 0 True Nothing -- let's flush
-nextForFile len _ _ 0 _ = Next len False Nothing
+    :: BytesFilled -> PositionRead -> FileOffset -> ByteCount -> Sentinel -> IO Next
+nextForFile 0 _ _ _ _ = return $ Next 0 True Nothing -- let's flush
+nextForFile len _ _ 0 sentinel = do
+    case sentinel of
+        Closer close -> close
+        _ -> return ()
+    return $ Next len False Nothing
 nextForFile len pread start bytes refresh =
-    Next len False $ Just $ fillBufFile pread start bytes refresh
+    return $ Next len False $ Just $ fillBufFile pread start bytes refresh
 
 {-# INLINE mini #-}
 mini :: Int -> Int64 -> Int64
