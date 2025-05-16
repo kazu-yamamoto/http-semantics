@@ -6,7 +6,7 @@ license-file:    LICENSE
 maintainer:      Kazu Yamamoto <kazu@iij.ad.jp>
 author:          Kazu Yamamoto <kazu@iij.ad.jp>
 homepage:        https://github.com/kazu-yamamoto/http-semantics
-synopsis:        HTTP senmatics libarry
+synopsis:        HTTP semantics library
 description:     Version-independent common parts of HTTP
 category:        Network
 build-type:      Simple
