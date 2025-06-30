@@ -61,7 +61,7 @@ data OutBody
     | OutBodyFile FileSpec
 
 data OutBodyIface = OutBodyIface
-    { outBodyUnmask :: (forall x. IO x -> IO x)
+    { outBodyUnmask :: forall x. IO x -> IO x
     -- ^ Unmask exceptions in the thread spawned for the request body
     --
     -- This is used in the client: we spawn the new thread for the request body

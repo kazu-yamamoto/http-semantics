@@ -1,6 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Network.HTTP.Semantics.FillBuf (
@@ -25,7 +22,7 @@ import Data.ByteString.Internal
 import Data.Int (Int64)
 import Data.Maybe
 import Foreign.Ptr (plusPtr)
-import Network.ByteOrder
+import Network.ByteOrder hiding (start)
 import Network.HTTP.Semantics.Client
 
 ----------------------------------------------------------------

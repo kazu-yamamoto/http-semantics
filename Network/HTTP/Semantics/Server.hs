@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Network.HTTP.Semantics.Server (
     -- * HTTP server
     Server,
