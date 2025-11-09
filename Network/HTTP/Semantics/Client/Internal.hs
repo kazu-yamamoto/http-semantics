@@ -16,4 +16,6 @@ newtype Response = Response InpObj deriving (Show)
 data Aux = Aux
     { auxPossibleClientStreams :: IO Int
     -- ^ How many streams can be created without blocking.
+    , auxSendPing :: IO ()
+    -- ^ Sending a ping.
     }

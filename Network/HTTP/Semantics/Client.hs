@@ -40,6 +40,7 @@ module Network.HTTP.Semantics.Client (
     -- * Aux
     Aux,
     auxPossibleClientStreams,
+    auxSendPing,
 
     -- * Types
     Scheme,
