@@ -2,6 +2,7 @@ module Network.HTTP.Semantics.Client.Internal (
     Request (..),
     Response (..),
     Aux (..),
+    defaultAux,
 ) where
 
 import Network.HTTP.Semantics.Types (InpObj (..), OutObj (..))
@@ -19,3 +20,10 @@ data Aux = Aux
     , auxSendPing :: IO ()
     -- ^ Sending a ping.
     }
+
+defaultAux :: Aux
+defaultAux =
+    Aux
+        { auxPossibleClientStreams = return 0
+        , auxSendPing = return ()
+        }

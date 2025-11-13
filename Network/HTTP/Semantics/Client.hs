@@ -39,6 +39,7 @@ module Network.HTTP.Semantics.Client (
 
     -- * Aux
     Aux,
+    defaultAux,
     auxPossibleClientStreams,
     auxSendPing,
 
