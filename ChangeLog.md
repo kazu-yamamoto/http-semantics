@@ -2,7 +2,8 @@
 
 ## 0.3.1
 
-* Adding defaultAux and auxSendPing.
+* Adding defaultAux and auxSendPing for client.
+* Adding defaultAux for server.
 
 ## 0.3.0
 
