@@ -1,5 +1,9 @@
 # ChangeLog for http-semantics
 
+## 0.3.1
+
+* Adding defaultAux and auxSendPing.
+
 ## 0.3.0
 
 * Breaking change: fillFileBodyGetNext takes Sentinel instead of
