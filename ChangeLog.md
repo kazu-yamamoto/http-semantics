@@ -1,5 +1,10 @@
 # ChangeLog for http-semantics
 
+## 0.4.0
+
+* This version is idential to v0.3.1 which includes breaking changes
+  and thus is deprecated.
+
 ## 0.3.1
 
 * Adding defaultAux and auxSendPing for client.
