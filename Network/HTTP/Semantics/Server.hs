@@ -40,8 +40,7 @@ module Network.HTTP.Semantics.Server (
     responseBodySize,
 
     -- ** Trailers maker
-    TrailersMaker,
-    NextTrailersMaker (..),
+    TrailersMaker (..),
     defaultTrailersMaker,
     setResponseTrailersMaker,
 

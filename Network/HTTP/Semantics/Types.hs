@@ -11,9 +11,8 @@ module Network.HTTP.Semantics.Types (
     OutBodyIface (..),
 
     -- * Trailers maker
-    TrailersMaker,
+    TrailersMaker (..),
     defaultTrailersMaker,
-    NextTrailersMaker (..),
 
     -- * File spec
     FileOffset,

@@ -21,8 +21,7 @@ module Network.HTTP.Semantics.Client (
     requestStreamingIface,
 
     -- ** Trailers maker
-    TrailersMaker,
-    NextTrailersMaker (..),
+    TrailersMaker (..),
     defaultTrailersMaker,
     setRequestTrailersMaker,
 
