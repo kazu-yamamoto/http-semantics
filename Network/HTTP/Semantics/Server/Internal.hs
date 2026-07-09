@@ -28,4 +28,6 @@ data Aux = Aux
     -- ^ Send an informational (1xx) response, e.g. 103 Early Hints, on this
     --   request's stream before the final response. May be called multiple
     --   times. A no-op in 'defaultAux'.
+    --
+    --   @since 0.4.1
     }
