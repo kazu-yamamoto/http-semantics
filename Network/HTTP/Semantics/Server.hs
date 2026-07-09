@@ -22,6 +22,7 @@ module Network.HTTP.Semantics.Server (
     auxTimeHandle,
     auxMySockAddr,
     auxPeerSockAddr,
+    auxSendInformational,
 
     -- * Response
     Response,
@@ -82,6 +83,7 @@ defaultAux =
         { auxTimeHandle = T.emptyHandle
         , auxMySockAddr = SockAddrInet 0 0
         , auxPeerSockAddr = SockAddrInet 0 0
+        , auxSendInformational = \_ _ -> return ()
         }
 
 ----------------------------------------------------------------
