@@ -1,5 +1,10 @@
 # ChangeLog for http-semantics
 
+## 0.4.1
+
+* Add `auxSendInformational` to the server `Aux` for sending 1xx informational
+  responses (e.g. 103 Early Hints) ahead of the final response.
+
 ## 0.4.0
 
 * This version is idential to v0.3.1 which includes breaking changes

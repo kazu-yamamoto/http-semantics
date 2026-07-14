@@ -4,6 +4,7 @@ module Network.HTTP.Semantics.Server.Internal (
     Aux (..),
 ) where
 
+import qualified Network.HTTP.Types as H
 import Network.Socket (SockAddr)
 import qualified System.TimeManager as T
 
@@ -23,4 +24,10 @@ data Aux = Aux
     -- ^ Local socket address copied from 'Config'.
     , auxPeerSockAddr :: SockAddr
     -- ^ Remove socket address copied from 'Config'.
+    , auxSendInformational :: H.Status -> H.ResponseHeaders -> IO ()
+    -- ^ Send an informational (1xx) response, e.g. 103 Early Hints, on this
+    --   request's stream before the final response. May be called multiple
+    --   times. A no-op in 'defaultAux'.
+    --
+    --   @since 0.4.1
     }
