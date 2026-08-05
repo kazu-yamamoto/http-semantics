@@ -86,16 +86,20 @@ data OutBodyIface = OutBodyIface
     -- Using this function instead of 'outBodyPush' can be used to guarantee
     -- that the final HTTP2 DATA frame is marked end-of-stream; with
     -- 'outBodyPush' it may happen that an additional empty DATA frame is used
-    -- for this purpose. Additionally, after calling this function,
-    -- 'outBodyCancel' will be a no-op.
+    -- for this purpose.
     , outBodyCancel :: Maybe SomeException -> IO ()
     -- ^ Cancel the stream
     --
-    -- Sends a @RST_STREAM@ to the peer. If cancelling as the result of an
-    -- exception, a 'Just' should be provided which specifies the exception
-    -- which will be stored locally as the reason for cancelling the stream; in
-    -- this case, the error code sent with the @RST_STREAM@ will be
-    -- @INTERNAL_ERROR@ (see
+    -- Cancelling a streams sends a @RST_STREAM@ to the network peer, which
+    -- tells them that they should stop sending us messages. As such, it may
+    -- still be necessary to call 'outBodyCancel' after 'outBodyPushFinal',
+    -- which merely tells the peer that /we/ will no longer send /them/ any more
+    -- messages.
+    --
+    -- If cancelling as the result of an exception, a 'Just' should be provided
+    -- which specifies the exception, which will be stored locally as the reason
+    -- for cancelling the stream; in this case, the error code sent with the
+    -- @RST_STREAM@ will be @INTERNAL_ERROR@ (see
     -- <https://datatracker.ietf.org/doc/html/rfc7540#section-7>). If 'Nothing'
     -- is given, the error code will be @CANCEL@.
     --
