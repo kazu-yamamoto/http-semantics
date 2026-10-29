@@ -1,6 +1,0 @@
--- network 3.2.10.0 is not on Hackage yet.  Its generated configure is not
--- in git, so this is the sibling checkout rather than a
--- source-repository-package.
-packages:
-    .
-    ../network
