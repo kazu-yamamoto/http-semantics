@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            http-semantics
-version:         0.4.1
+version:         0.4.2
 license:         BSD-3-Clause
 license-file:    LICENSE
 maintainer:      Kazu Yamamoto <kazu@iij.ad.jp>
@@ -44,7 +44,8 @@ library
         bytestring >=0.10,
         case-insensitive,
         http-types >=0.12 && <0.13,
-        network,
+        network >=3.2.10,
         network-byte-order,
+        stm,
         time-manager >= 0.2.4,
         utf8-string

@@ -1,5 +1,13 @@
 # ChangeLog for http-semantics
 
+## 0.4.2
+
+* `defaultReadNWith` is `defaultReadN` with an `STM` action beside each
+  receive.  When it fires the read answers with the empty string, which is
+  what `ReadN` already means by end of input, so a reader blocked in it can
+  be given up on without closing the socket under it or throwing into it --
+  neither of which works everywhere.
+
 ## 0.4.1
 
 * Add `auxSendInformational` to the server `Aux` for sending 1xx informational
