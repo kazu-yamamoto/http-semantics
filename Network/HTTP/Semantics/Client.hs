@@ -26,6 +26,9 @@ module Network.HTTP.Semantics.Client (
     defaultTrailersMaker,
     setRequestTrailersMaker,
 
+    -- ** Giving up
+    setRequestGiveUp,
+
     -- * Response
     Response,
 
@@ -55,6 +58,7 @@ module Network.HTTP.Semantics.Client (
     module Network.HTTP.Semantics.File,
 ) where
 
+import Control.Concurrent.STM (STM, retry)
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import Data.IORef (readIORef)
@@ -78,19 +82,19 @@ type Client a = SendRequest -> Aux -> IO a
 
 -- | Creating request without body.
 requestNoBody :: Method -> Path -> RequestHeaders -> Request
-requestNoBody m p hdr = Request $ OutObj hdr' OutBodyNone defaultTrailersMaker
+requestNoBody m p hdr = Request $ OutObj hdr' OutBodyNone defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
 
 -- | Creating request with file.
 requestFile :: Method -> Path -> RequestHeaders -> FileSpec -> Request
-requestFile m p hdr fileSpec = Request $ OutObj hdr' (OutBodyFile fileSpec) defaultTrailersMaker
+requestFile m p hdr fileSpec = Request $ OutObj hdr' (OutBodyFile fileSpec) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
 
 -- | Creating request with builder.
 requestBuilder :: Method -> Path -> RequestHeaders -> Builder -> Request
-requestBuilder m p hdr builder = Request $ OutObj hdr' (OutBodyBuilder builder) defaultTrailersMaker
+requestBuilder m p hdr builder = Request $ OutObj hdr' (OutBodyBuilder builder) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
 
@@ -101,7 +105,7 @@ requestStreaming
     -> RequestHeaders
     -> ((Builder -> IO ()) -> IO () -> IO ())
     -> Request
-requestStreaming m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker
+requestStreaming m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
 
@@ -122,7 +126,7 @@ requestStreamingIface
     -> RequestHeaders
     -> (OutBodyIface -> IO ())
     -> Request
-requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker
+requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
 
@@ -132,6 +136,14 @@ addHeaders m p hdr = (":method", m) : (":path", p) : hdr
 -- | Setting 'TrailersMaker' to 'Response'.
 setRequestTrailersMaker :: Request -> TrailersMaker -> Request
 setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
+
+-- | Giving up on the request once the 'STM' action succeeds: opening its
+--   stream, sending it, waiting for the response and reading the body.
+--   The stream is reset and the call waiting throws.
+--
+-- @since 0.5.0
+setRequestGiveUp :: Request -> STM () -> Request
+setRequestGiveUp (Request req) giveUp = Request req{outObjGiveUp = giveUp}
 
 ----------------------------------------------------------------
 

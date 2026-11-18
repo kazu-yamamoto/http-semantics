@@ -26,6 +26,7 @@ module Network.HTTP.Semantics.Types (
     Path,
 ) where
 
+import Control.Concurrent.STM (STM)
 import Control.Exception (SomeException)
 import Data.ByteString.Builder (Builder)
 import Data.IORef
@@ -140,10 +141,15 @@ data OutObj = OutObj
     -- ^ Accessor for outObj body.
     , outObjTrailers :: TrailersMaker
     -- ^ Accessor for trailers maker.
+    , outObjGiveUp :: STM ()
+    -- ^ Once this succeeds, the library gives up on the object.
+    --   'Control.Concurrent.STM.retry' gives up never.
+    --
+    --   @since 0.5.0
     }
 
 instance Show OutObj where
-    show (OutObj hdr _ _) = show hdr
+    show (OutObj hdr _ _ _) = show hdr
 
 ----------------------------------------------------------------
 

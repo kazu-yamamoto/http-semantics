@@ -61,6 +61,7 @@ module Network.HTTP.Semantics.Server (
     module Network.HTTP.Semantics.File,
 ) where
 
+import Control.Concurrent.STM (retry)
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.UTF8 as UTF8
@@ -161,19 +162,19 @@ getRequestTrailers (Request req) = readIORef (inpObjTrailers req)
 
 -- | Creating response without body.
 responseNoBody :: H.Status -> H.ResponseHeaders -> Response
-responseNoBody st hdr = Response $ OutObj hdr' OutBodyNone defaultTrailersMaker
+responseNoBody st hdr = Response $ OutObj hdr' OutBodyNone defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
 
 -- | Creating response with file.
 responseFile :: H.Status -> H.ResponseHeaders -> FileSpec -> Response
-responseFile st hdr fileSpec = Response $ OutObj hdr' (OutBodyFile fileSpec) defaultTrailersMaker
+responseFile st hdr fileSpec = Response $ OutObj hdr' (OutBodyFile fileSpec) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
 
 -- | Creating response with builder.
 responseBuilder :: H.Status -> H.ResponseHeaders -> Builder -> Response
-responseBuilder st hdr builder = Response $ OutObj hdr' (OutBodyBuilder builder) defaultTrailersMaker
+responseBuilder st hdr builder = Response $ OutObj hdr' (OutBodyBuilder builder) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
 
@@ -183,7 +184,7 @@ responseStreaming
     -> H.ResponseHeaders
     -> ((Builder -> IO ()) -> IO () -> IO ())
     -> Response
-responseStreaming st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker
+responseStreaming st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
 
@@ -193,7 +194,7 @@ responseStreamingIface
     -> H.ResponseHeaders
     -> (OutBodyIface -> IO ())
     -> Response
-responseStreamingIface st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker
+responseStreamingIface st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
 
@@ -201,7 +202,7 @@ responseStreamingIface st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreaming
 
 -- | Getter for response body size. This value is available for file body.
 responseBodySize :: Response -> Maybe Int
-responseBodySize (Response (OutObj _ (OutBodyFile (FileSpec _ _ len)) _)) = Just (fromIntegral len)
+responseBodySize (Response (OutObj _ (OutBodyFile (FileSpec _ _ len)) _ _)) = Just (fromIntegral len)
 responseBodySize _ = Nothing
 
 -- | Setting 'TrailersMaker' to 'Response'.
