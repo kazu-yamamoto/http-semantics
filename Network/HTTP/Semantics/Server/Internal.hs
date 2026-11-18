@@ -6,7 +6,6 @@ module Network.HTTP.Semantics.Server.Internal (
 
 import qualified Network.HTTP.Types as H
 import Network.Socket (SockAddr)
-import qualified System.TimeManager as T
 
 import Network.HTTP.Semantics.Types (InpObj (..), OutObj (..))
 
@@ -18,9 +17,7 @@ newtype Response = Response OutObj deriving (Show)
 
 -- | Additional information.
 data Aux = Aux
-    { auxTimeHandle :: T.Handle
-    -- ^ Time handle for the worker processing this request and response.
-    , auxMySockAddr :: SockAddr
+    { auxMySockAddr :: SockAddr
     -- ^ Local socket address copied from 'Config'.
     , auxPeerSockAddr :: SockAddr
     -- ^ Remove socket address copied from 'Config'.
