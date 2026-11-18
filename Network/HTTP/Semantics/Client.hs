@@ -59,7 +59,8 @@ module Network.HTTP.Semantics.Client (
     module Network.HTTP.Semantics.File,
 ) where
 
-import Control.Concurrent.STM (STM, newTVarIO, readTVarIO, retry, writeTVar)
+import Control.Concurrent.STM (STM, atomically, orElse, retry)
+import Control.Monad (void)
 import qualified Control.Exception as E
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
@@ -149,19 +150,20 @@ setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
 --   'STM' action succeeds: while its stream is opened, while it is sent,
 --   while the response is waited for, and while the handler reads the
 --   body.  The stream is reset and what the action gave is returned as
---   'Left'.  A request already done by then is not given up on.
+--   'Left'.  A request already done by then is not given up on.  The
+--   action is run wherever the request waits, and once more for what it
+--   gave: it should go on succeeding once it has, as a deadline does.
 --
 -- @since 0.5.0
 sendRequestWith
     :: SendRequest -> Request -> STM g -> (Response -> IO r) -> IO (Either g r)
 sendRequestWith send req giveUp handler = do
-    slot <- newTVarIO Nothing
-    let giveUp' = giveUp >>= writeTVar slot . Just
-    r <- E.try $ send (setRequestGiveUp req giveUp') handler
+    r <- E.try $ send (setRequestGiveUp req $ void giveUp) handler
     case r of
         Right x -> return $ Right x
-        Left RequestGivenUp ->
-            readTVarIO slot >>= maybe (E.throwIO RequestGivenUp) (return . Left)
+        Left RequestGivenUp -> do
+            mg <- atomically $ (Just <$> giveUp) `orElse` return Nothing
+            maybe (E.throwIO RequestGivenUp) (return . Left) mg
 
 ----------------------------------------------------------------
 
