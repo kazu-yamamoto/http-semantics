@@ -18,6 +18,7 @@ module Network.HTTP.Semantics.Client (
 
     -- ** Generalized streaming interface
     OutBodyIface (..),
+    StreamTerminated (..),
     requestStreamingIface,
 
     -- ** Trailers maker
@@ -27,7 +28,7 @@ module Network.HTTP.Semantics.Client (
     setRequestTrailersMaker,
 
     -- ** Giving up
-    setRequestGiveUp,
+    sendRequestWith,
 
     -- * Response
     Response,
@@ -58,7 +59,8 @@ module Network.HTTP.Semantics.Client (
     module Network.HTTP.Semantics.File,
 ) where
 
-import Control.Concurrent.STM (STM, retry)
+import Control.Concurrent.STM (STM, newTVarIO, readTVarIO, retry, writeTVar)
+import qualified Control.Exception as E
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import Data.IORef (readIORef)
@@ -143,13 +145,23 @@ addHeaders m p hdr = (":method", m) : (":path", p) : hdr
 setRequestTrailersMaker :: Request -> TrailersMaker -> Request
 setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
 
--- | Giving up on the request once the 'STM' action succeeds: opening its
---   stream, sending it, waiting for the response and reading the body.
---   The stream is reset and the call waiting throws.
+-- | Sending a request as 'SendRequest' does, giving up on it once the
+--   'STM' action succeeds: while its stream is opened, while it is sent,
+--   while the response is waited for, and while the handler reads the
+--   body.  The stream is reset and what the action gave is returned as
+--   'Left'.  A request already done by then is not given up on.
 --
 -- @since 0.5.0
-setRequestGiveUp :: Request -> STM () -> Request
-setRequestGiveUp (Request req) giveUp = Request req{outObjGiveUp = giveUp}
+sendRequestWith
+    :: SendRequest -> Request -> STM g -> (Response -> IO r) -> IO (Either g r)
+sendRequestWith send req giveUp handler = do
+    slot <- newTVarIO Nothing
+    let giveUp' = giveUp >>= writeTVar slot . Just
+    r <- E.try $ send (setRequestGiveUp req giveUp') handler
+    case r of
+        Right x -> return $ Right x
+        Left RequestGivenUp ->
+            readTVarIO slot >>= maybe (E.throwIO RequestGivenUp) (return . Left)
 
 ----------------------------------------------------------------
 
