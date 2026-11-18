@@ -34,6 +34,7 @@ module Network.HTTP.Semantics.Server (
 
     -- ** Generalized streaming interface
     OutBodyIface (..),
+    StreamTerminated (..),
     responseStreamingIface,
 
     -- ** Accessing response

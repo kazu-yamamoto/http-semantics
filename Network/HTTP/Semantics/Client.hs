@@ -18,6 +18,7 @@ module Network.HTTP.Semantics.Client (
 
     -- ** Generalized streaming interface
     OutBodyIface (..),
+    StreamTerminated (..),
     requestStreamingIface,
 
     -- ** Trailers maker
@@ -27,7 +28,7 @@ module Network.HTTP.Semantics.Client (
     setRequestTrailersMaker,
 
     -- ** Giving up
-    setRequestGiveUp,
+    sendRequestWith,
 
     -- * Response
     Response,
@@ -58,7 +59,9 @@ module Network.HTTP.Semantics.Client (
     module Network.HTTP.Semantics.File,
 ) where
 
-import Control.Concurrent.STM (STM, retry)
+import Control.Concurrent.STM (STM, atomically, orElse, retry)
+import Control.Monad (void)
+import qualified Control.Exception as E
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import Data.IORef (readIORef)
@@ -143,13 +146,24 @@ addHeaders m p hdr = (":method", m) : (":path", p) : hdr
 setRequestTrailersMaker :: Request -> TrailersMaker -> Request
 setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
 
--- | Giving up on the request once the 'STM' action succeeds: opening its
---   stream, sending it, waiting for the response and reading the body.
---   The stream is reset and the call waiting throws.
+-- | Sending a request as 'SendRequest' does, giving up on it once the
+--   'STM' action succeeds: while its stream is opened, while it is sent,
+--   while the response is waited for, and while the handler reads the
+--   body.  The stream is reset and what the action gave is returned as
+--   'Left'.  A request already done by then is not given up on.  The
+--   action is run wherever the request waits, and once more for what it
+--   gave: it should go on succeeding once it has, as a deadline does.
 --
 -- @since 0.5.0
-setRequestGiveUp :: Request -> STM () -> Request
-setRequestGiveUp (Request req) giveUp = Request req{outObjGiveUp = giveUp}
+sendRequestWith
+    :: SendRequest -> Request -> STM g -> (Response -> IO r) -> IO (Either g r)
+sendRequestWith send req giveUp handler = do
+    r <- E.try $ send (setRequestGiveUp req $ void giveUp) handler
+    case r of
+        Right x -> return $ Right x
+        Left RequestGivenUp -> do
+            mg <- atomically $ (Just <$> giveUp) `orElse` return Nothing
+            maybe (E.throwIO RequestGivenUp) (return . Left) mg
 
 ----------------------------------------------------------------
 

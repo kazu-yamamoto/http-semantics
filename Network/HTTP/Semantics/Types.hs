@@ -9,6 +9,7 @@ module Network.HTTP.Semantics.Types (
     OutObj (..),
     OutBody (..),
     OutBodyIface (..),
+    StreamTerminated (..),
 
     -- * Trailers maker
     TrailersMaker,
@@ -27,7 +28,7 @@ module Network.HTTP.Semantics.Types (
 ) where
 
 import Control.Concurrent.STM (STM)
-import Control.Exception (SomeException)
+import Control.Exception (Exception, SomeException)
 import Data.ByteString.Builder (Builder)
 import Data.IORef
 import Data.Int (Int64)
@@ -60,6 +61,21 @@ data OutBody
       OutBodyStreamingIface (OutBodyIface -> IO ())
     | OutBodyBuilder Builder
     | OutBodyFile FileSpec
+
+-- | Thrown by 'outBodyPush', 'outBodyPushFinal' and 'outBodyFlush'
+--   once the body has ended or been cancelled.
+--
+--   @since 0.5.0
+data StreamTerminated
+    = -- | 'outBodyPushFinal' has been called.
+      StreamPushedFinal
+    | -- | 'outBodyCancel' has been called.
+      StreamCancelled
+    | -- | The body has returned.
+      StreamOutOfScope
+    deriving (Eq, Show)
+
+instance Exception StreamTerminated
 
 data OutBodyIface = OutBodyIface
     { outBodyUnmask :: forall x. IO x -> IO x

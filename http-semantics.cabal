@@ -21,6 +21,7 @@ library
         Network.HTTP.Semantics
         Network.HTTP.Semantics.Client
         Network.HTTP.Semantics.Client.Internal
+        Network.HTTP.Semantics.Error
         Network.HTTP.Semantics.IO
         Network.HTTP.Semantics.Server
         Network.HTTP.Semantics.Server.Internal
