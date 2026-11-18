@@ -47,5 +47,4 @@ library
         network >=3.2.10,
         network-byte-order,
         stm,
-        time-manager >= 0.2.4,
         utf8-string

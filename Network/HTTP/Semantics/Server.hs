@@ -19,7 +19,6 @@ module Network.HTTP.Semantics.Server (
     -- * Aux
     Aux,
     defaultAux,
-    auxTimeHandle,
     auxMySockAddr,
     auxPeerSockAddr,
     auxSendInformational,
@@ -68,7 +67,6 @@ import qualified Data.ByteString.UTF8 as UTF8
 import Data.IORef
 import qualified Network.HTTP.Types as H
 import Network.Socket
-import qualified System.TimeManager as T
 
 import Network.HTTP.Semantics
 import Network.HTTP.Semantics.File
@@ -81,8 +79,7 @@ import Network.HTTP.Semantics.Status
 defaultAux :: Aux
 defaultAux =
     Aux
-        { auxTimeHandle = T.emptyHandle
-        , auxMySockAddr = SockAddrInet 0 0
+        { auxMySockAddr = SockAddrInet 0 0
         , auxPeerSockAddr = SockAddrInet 0 0
         , auxSendInformational = \_ _ -> return ()
         }
