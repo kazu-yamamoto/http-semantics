@@ -187,6 +187,9 @@ responseStreaming
 responseStreaming st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
+-- Not inlined: GHC 9.12.4 and 9.14.1 may store a never-returning body
+-- unevaluated in the strict field, read as the first constructor (ghc#27857).
+{-# NOINLINE responseStreaming #-}
 
 -- | Generalization of 'responseStreaming'.
 responseStreamingIface
@@ -197,6 +200,9 @@ responseStreamingIface
 responseStreamingIface st hdr strmbdy = Response $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker retry
   where
     hdr' = setStatus st hdr
+-- Not inlined: GHC 9.12.4 and 9.14.1 may store a never-returning body
+-- unevaluated in the strict field, read as the first constructor (ghc#27857).
+{-# NOINLINE responseStreamingIface #-}
 
 ----------------------------------------------------------------
 
