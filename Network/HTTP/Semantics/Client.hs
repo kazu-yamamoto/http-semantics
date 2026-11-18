@@ -108,6 +108,9 @@ requestStreaming
 requestStreaming m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreaming strmbdy) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
+-- Not inlined: GHC 9.12.4 and 9.14.1 may store a never-returning body
+-- unevaluated in the strict field, read as the first constructor (ghc#27857).
+{-# NOINLINE requestStreaming #-}
 
 -- | Like 'requestStreaming', but run the action with exceptions masked
 requestStreamingUnmask
@@ -129,6 +132,9 @@ requestStreamingIface
 requestStreamingIface m p hdr strmbdy = Request $ OutObj hdr' (OutBodyStreamingIface strmbdy) defaultTrailersMaker retry
   where
     hdr' = addHeaders m p hdr
+-- Not inlined: GHC 9.12.4 and 9.14.1 may store a never-returning body
+-- unevaluated in the strict field, read as the first constructor (ghc#27857).
+{-# NOINLINE requestStreamingIface #-}
 
 addHeaders :: Method -> Path -> RequestHeaders -> RequestHeaders
 addHeaders m p hdr = (":method", m) : (":path", p) : hdr
