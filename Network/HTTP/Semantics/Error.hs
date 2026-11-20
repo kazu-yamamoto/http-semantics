@@ -41,9 +41,9 @@ data HTTPError
       ConnectionIsReset
     | -- | The connection closed normally while this was waiting.
       ConnectionIsClosed
-    | -- | The connection closed before the peer took this request: it
-      --   has not been processed and may be sent again.
-      RequestIsUnprocessed StreamId
+    | -- | The peer will not process this request, after its GOAWAY: it
+      --   may be sent again.  The stream, if the request had got one.
+      RequestIsUnprocessed (Maybe StreamId)
     | ConnectionErrorIsReceived HTTPErrorCode ReasonPhrase
     | ConnectionErrorIsSent HTTPErrorCode ReasonPhrase
     | StreamErrorIsReceived HTTPErrorCode StreamId
