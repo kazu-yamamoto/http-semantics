@@ -49,6 +49,6 @@ data NextTrailersMaker
 
 -- | Running trailers-maker.
 --
--- > bufferIO buf siz $ \bs -> tlrmkr (Just bs)
+-- > unsafeBufferIO buf siz $ \bs -> tlrmkr (Just bs)
 runTrailersMaker :: TrailersMaker -> Buffer -> Int -> IO NextTrailersMaker
-runTrailersMaker tlrmkr buf siz = bufferIO buf siz $ \bs -> tlrmkr (Just bs)
+runTrailersMaker tlrmkr buf siz = unsafeBufferIO buf siz $ \bs -> tlrmkr (Just bs)
