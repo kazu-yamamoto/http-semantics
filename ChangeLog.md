@@ -1,5 +1,24 @@
 # ChangeLog for http-semantics
 
+## 0.5.0
+
+* Let a client give up on a request
+  [#20](https://github.com/kazu-yamamoto/http-semantics/pull/20)
+* Keep the streaming request and response makers from inlining
+  [#21](https://github.com/kazu-yamamoto/http-semantics/pull/21)
+* Drop auxTimeHandle and the time-manager dependency
+  [#22](https://github.com/kazu-yamamoto/http-semantics/pull/22)
+* Share the errors of HTTP/2 and HTTP/3, and give up on a request with a result
+  [#23](https://github.com/kazu-yamamoto/http-semantics/pull/23)
+* Let defaultReadNWith take the STM action last and give up with Left
+  [#24](https://github.com/kazu-yamamoto/http-semantics/pull/24)
+* Let RequestIsUnprocessed carry Maybe StreamId, for a request with no stream yet
+  [#25](https://github.com/kazu-yamamoto/http-semantics/pull/25)
+* Use unsafeBufferIO instead of deprecated bufferIO
+  [#26](https://github.com/kazu-yamamoto/http-semantics/pull/26)
+* Take the STM give-up last in sendRequestWith
+  [#27](https://github.com/kazu-yamamoto/http-semantics/pull/27)
+
 ## 0.4.2
 
 * `defaultReadNWith` is `defaultReadN` with an `STM` action beside each
