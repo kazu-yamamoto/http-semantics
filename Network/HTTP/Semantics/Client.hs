@@ -146,8 +146,9 @@ addHeaders m p hdr = (":method", m) : (":path", p) : hdr
 setRequestTrailersMaker :: Request -> TrailersMaker -> Request
 setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
 
--- | Sending a request as 'SendRequest' does, giving up on it once the
---   'STM' action succeeds: while its stream is opened, while it is sent,
+-- | Sending a request and handling its response as 'SendRequest' does,
+--   giving up on it once the 'STM' action, the last argument,
+--   succeeds: while its stream is opened, while it is sent,
 --   while the response is waited for, and while the handler reads the
 --   body.  The stream is reset and what the action gave is returned as
 --   'Left'.  A request already done by then is not given up on.  The
@@ -156,8 +157,8 @@ setRequestTrailersMaker (Request req) tm = Request req{outObjTrailers = tm}
 --
 -- @since 0.5.0
 sendRequestWith
-    :: SendRequest -> Request -> STM g -> (Response -> IO r) -> IO (Either g r)
-sendRequestWith send req giveUp handler = do
+    :: SendRequest -> Request -> (Response -> IO r) -> STM g -> IO (Either g r)
+sendRequestWith send req handler giveUp = do
     r <- E.try $ send (setRequestGiveUp req $ void giveUp) handler
     case r of
         Right x -> return $ Right x
