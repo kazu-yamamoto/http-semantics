@@ -6,6 +6,9 @@ import qualified Network.HTTP.Types as H
 -- | Trailers maker. A chunks of the response body is passed
 --   with 'Just'. The maker should update internal state
 --   with the 'ByteString' and return the next trailers maker.
+--   The 'ByteString' may share the sender's buffer and is valid
+--   only during the call. Consume it strictly or copy it with
+--   'Data.ByteString.copy', and never keep it in a lazy state.
 --   When response body reaches its end,
 --   'Nothing' is passed and the maker should generate
 --   trailers. An example:
